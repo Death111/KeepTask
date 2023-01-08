@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: rgba(54,143,179,0.01); -fx-background-radius: 10 10 10 10; -fx-border-radius: 10 10 10 10; -fx-border-color: rgba(54,143,179,.0.01);" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.doubleslash.keeptask.view.ViewController">
+   <children>
+      <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
+         <children>
+            <HBox alignment="TOP_RIGHT">
+               <children>
+                  <Button fx:id="minimizeButton" mnemonicParsing="false" text="_" />
+                  <Button fx:id="closeButton" mnemonicParsing="false" text="x" />
+               </children>
+            </HBox>
+            <VBox spacing="5.0">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Label text="Filter" />
+                        <TextField fx:id="searchTextInput" promptText="Search..." />
+                        <Button fx:id="allButton" mnemonicParsing="false" text="All" />
+                        <Button fx:id="todayButton" mnemonicParsing="false" text="Today" />
+                        <Button fx:id="tomorrowButton" mnemonicParsing="false" text="Tomorrow" />
+                        <Button fx:id="expiredButton" mnemonicParsing="false" text="Expired" />
+                        <CheckBox fx:id="alsoCompletedCheckbox" mnemonicParsing="false" selected="true" text="Also completed" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Label text="Project" />
+                        <HBox fx:id="projectFilterHbox" spacing="10.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <children>
+                        <Label text="New:" />
+                        <TextField fx:id="prioTextInput" layoutX="10.0" layoutY="10.0" promptText="Prio" />
+                        <TextField fx:id="projectTextInput" promptText="Project" />
+                        <TextField fx:id="todoTextInput" promptText="todo" />
+                        <DatePicker fx:id="dueDatePicker" promptText="Due" />
+                        <Button fx:id="addTodoButton" mnemonicParsing="false" text="Add" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox fx:id="workItemVBox" />
+         </children>
+      </VBox>
+   </children>
+</Pane>
