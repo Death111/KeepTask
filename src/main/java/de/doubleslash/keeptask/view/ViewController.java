@@ -19,6 +19,8 @@ package de.doubleslash.keeptask.view;
 import de.doubleslash.keeptask.common.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -75,13 +77,13 @@ public class ViewController {
     private Button allButton;
 
     @FXML
-    private Button todayButton;
+    private ToggleButton todayToggleButton;
 
     @FXML
-    private Button tomorrowButton;
+    private ToggleButton tomorrowToggleButton;
 
     @FXML
-    private Button expiredButton;
+    private ToggleButton expiredToggleButton;
 
     @FXML
     private CheckBox alsoCompletedCheckbox;
@@ -152,13 +154,48 @@ public class ViewController {
             updateProjectFilterButtons();
         });
         updateProjectFilterButtons();
-        
-        allButton.setOnAction(actionEvent -> refreshTodos(Optional.empty()));
-        alsoCompletedCheckbox.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished())));
-        todayButton.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()))));
-        tomorrowButton.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().plusDays(1).isEqual(workItem.getDueDateTime().toLocalDate()))));
-        expiredButton.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isAfter(workItem.getDueDateTime().toLocalDate()))));
+
+        allButton.setOnAction(actionEvent -> {
+            todayToggleButton.setSelected(false);
+            tomorrowToggleButton.setSelected(false);
+            expiredToggleButton.setSelected(false);
+        });
+
+        alsoCompletedCheckbox.setUserData((Predicate<WorkItem>) workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
+        alsoCompletedCheckbox.setOnAction(actionEvent -> {
+                    CheckBox sourceToggleButton = (CheckBox) actionEvent.getSource();
+                    if (sourceToggleButton.isSelected()) {
+                        filters.add((Predicate<WorkItem>) todayToggleButton.getUserData());
+                    } else {
+                        filters.remove(todayToggleButton.getUserData());
+                    }
+                    refreshTodos(Optional.empty());
+                }
+        );
+
+        todayToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()));
+        todayToggleButton.setOnAction(toggleButtonPressedAction());
+
+        tomorrowToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().plusDays(1).isEqual(workItem.getDueDateTime().toLocalDate()));
+        tomorrowToggleButton.setOnAction(toggleButtonPressedAction());
+
+        expiredToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isAfter(workItem.getDueDateTime().toLocalDate()));
+        expiredToggleButton.setOnAction(toggleButtonPressedAction());
     }
+
+    private EventHandler<ActionEvent> toggleButtonPressedAction() {
+        return actionEvent -> {
+            ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
+            if (sourceToggleButton.isSelected()) {
+                filters.add((Predicate<WorkItem>) todayToggleButton.getUserData());
+            } else {
+                filters.remove(todayToggleButton.getUserData());
+            }
+            refreshTodos(Optional.empty());
+        };
+    }
+
+    List<Predicate<WorkItem>> filters = new ArrayList<>();
 
     private void updateProjectFilterButtons() {
         Set<String> projectNames = model.getWorkItems().stream().map(workItem -> workItem.getProject()).collect(Collectors.toSet());
@@ -196,9 +233,9 @@ public class ViewController {
         children.clear();
 
         ObservableList<WorkItem> workItems = model.getWorkItems();
-        for (WorkItem workItem : workItems) {
-            if (!optionalFilterPredicate.isPresent() || (optionalFilterPredicate.isPresent() && optionalFilterPredicate.get().test(workItem)))
-                children.add(createTodoNode(workItem));
+
+        for (WorkItem workItem : workItems.stream().filter(filters.stream().reduce(x -> true, Predicate::and)).collect(Collectors.toList())) {
+            children.add(createTodoNode(workItem));
         }
     }
 
