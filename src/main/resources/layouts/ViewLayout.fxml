@@ -5,6 +5,7 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -25,11 +26,15 @@
                      <children>
                         <Label text="Filter" />
                         <TextField fx:id="searchTextInput" promptText="Search..." />
-                        <Button fx:id="allButton" mnemonicParsing="false" text="All" />
-                        <Button fx:id="todayButton" mnemonicParsing="false" text="Today" />
-                        <Button fx:id="tomorrowButton" mnemonicParsing="false" text="Tomorrow" />
-                        <Button fx:id="expiredButton" mnemonicParsing="false" text="Expired" />
-                        <CheckBox fx:id="alsoCompletedCheckbox" mnemonicParsing="false" selected="true" text="Also completed" />
+                        <CheckBox fx:id="alsoCompletedCheckbox" mnemonicParsing="false" text="Also completed" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="10.0">
+                     <children>
+                        <Label text="Time" />
+                        <ToggleButton fx:id="todayToggleButton" mnemonicParsing="false" text="Today" />
+                        <ToggleButton fx:id="tomorrowToggleButton" mnemonicParsing="false" text="Tomorrow" />
+                        <ToggleButton fx:id="expiredToggleButton" mnemonicParsing="false" text="Expired" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT" spacing="10.0">

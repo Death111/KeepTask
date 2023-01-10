@@ -19,6 +19,8 @@ package de.doubleslash.keeptask.view;
 import de.doubleslash.keeptask.common.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -41,6 +43,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class ViewController {
@@ -72,16 +75,13 @@ public class ViewController {
     private TextField searchTextInput;
 
     @FXML
-    private Button allButton;
+    private ToggleButton todayToggleButton;
 
     @FXML
-    private Button todayButton;
+    private ToggleButton tomorrowToggleButton;
 
     @FXML
-    private Button tomorrowButton;
-
-    @FXML
-    private Button expiredButton;
+    private ToggleButton expiredToggleButton;
 
     @FXML
     private CheckBox alsoCompletedCheckbox;
@@ -152,22 +152,55 @@ public class ViewController {
             updateProjectFilterButtons();
         });
         updateProjectFilterButtons();
-        
-        allButton.setOnAction(actionEvent -> refreshTodos(Optional.empty()));
-        alsoCompletedCheckbox.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished())));
-        todayButton.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()))));
-        tomorrowButton.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().plusDays(1).isEqual(workItem.getDueDateTime().toLocalDate()))));
-        expiredButton.setOnAction(actionEvent -> refreshTodos(Optional.of(workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isAfter(workItem.getDueDateTime().toLocalDate()))));
+
+
+        alsoCompletedCheckbox.setOnAction(actionEvent -> {
+                    refreshTodos(Optional.empty());
+                }
+        );
+
+        todayToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()));
+        todayToggleButton.setOnAction(toggleButtonPressedAction());
+
+        tomorrowToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().plusDays(1).isEqual(workItem.getDueDateTime().toLocalDate()));
+        tomorrowToggleButton.setOnAction(toggleButtonPressedAction());
+
+        expiredToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isAfter(workItem.getDueDateTime().toLocalDate()));
+        expiredToggleButton.setOnAction(toggleButtonPressedAction());
     }
+
+    private EventHandler<ActionEvent> toggleButtonPressedAction() {
+        return actionEvent -> {
+            ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
+            if (sourceToggleButton.isSelected()) {
+                timeFilters.add((Predicate<WorkItem>) sourceToggleButton.getUserData());
+            } else {
+                timeFilters.remove(sourceToggleButton.getUserData());
+            }
+            refreshTodos(Optional.empty());
+        };
+    }
+
+    List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
+    List<Predicate<WorkItem>> projectFilters = new ArrayList<>();
 
     private void updateProjectFilterButtons() {
         Set<String> projectNames = model.getWorkItems().stream().map(workItem -> workItem.getProject()).collect(Collectors.toSet());
         projectFilterHbox.getChildren().clear();
+        projectFilters.clear();
         projectFilterHbox.getChildren().addAll(projectNames.stream().map(projectName -> {
-                            Button button = new Button(projectName);
+                            ToggleButton button = new ToggleButton(projectName);
+                            button.setUserData((Predicate<WorkItem>) workItem -> button.getText().equals(workItem.getProject()));
+
                             button.setOnAction(actionEvent -> {
-                                refreshTodos(Optional.of(workItem -> button.getText().equals(workItem.getProject())));
+                                ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
+                                if (sourceToggleButton.isSelected()) {
+                                    projectFilters.add((Predicate<WorkItem>) sourceToggleButton.getUserData());
+                                } else {
+                                    projectFilters.remove(sourceToggleButton.getUserData());
+                                }
                                 projectTextInput.setText(button.getText());
+                                refreshTodos(Optional.empty());
                             });
                             return button;
                         }
@@ -175,31 +208,25 @@ public class ViewController {
         );
     }
 
-    private void openConfirmationWindow() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.CANCEL);
-        alert.setTitle("Confirm exit");
-        alert.setHeaderText("Are you sure you want to close KeepTask?");
-
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(Resources.getResource(Resources.RESOURCE.ICON_MAIN).toString()));
-
-        stage.setAlwaysOnTop(true);
-        alert.showAndWait();
-
-        if (alert.getResult() == ButtonType.YES) {
-            mainStage.close();
-        }
-    }
-
     private void refreshTodos(Optional<Predicate<WorkItem>> optionalFilterPredicate) {
         ObservableList<Node> children = workItemVBox.getChildren();
         children.clear();
 
         ObservableList<WorkItem> workItems = model.getWorkItems();
-        for (WorkItem workItem : workItems) {
-            if (!optionalFilterPredicate.isPresent() || (optionalFilterPredicate.isPresent() && optionalFilterPredicate.get().test(workItem)))
-                children.add(createTodoNode(workItem));
+
+
+        Stream<WorkItem> a = workItems.stream();
+        if (!timeFilters.isEmpty()) a = a.filter(timeFilters.stream().reduce(x -> false, Predicate::or));
+        if (!projectFilters.isEmpty()) a = a.filter(projectFilters.stream().reduce(x -> false, Predicate::or));
+        a = a.filter(workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
+
+        List<WorkItem> filteredItems = a.collect(Collectors.toList());
+
+        for (WorkItem workItem : filteredItems) {
+            children.add(createTodoNode(workItem));
         }
+        if (mainStage != null)
+            mainStage.sizeToScene();
     }
 
     private Node createTodoNode(WorkItem workItem) {
@@ -287,6 +314,22 @@ public class ViewController {
         style = StyleUtils.changeStyleAttribute(style, "fx-border-color",
                 "rgba(" + ColorHelper.colorToCssRgb(color) + ", " + 255 + ")");
         pane.setStyle(style);
+    }
+
+    private void openConfirmationWindow() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.CANCEL);
+        alert.setTitle("Confirm exit");
+        alert.setHeaderText("Are you sure you want to close KeepTask?");
+
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Resources.getResource(Resources.RESOURCE.ICON_MAIN).toString()));
+
+        stage.setAlwaysOnTop(true);
+        alert.showAndWait();
+
+        if (alert.getResult() == ButtonType.YES) {
+            mainStage.close();
+        }
     }
 
     public void setMainStage(Stage mainStage) {
