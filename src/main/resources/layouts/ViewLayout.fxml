@@ -26,7 +26,6 @@
                      <children>
                         <Label text="Filter" />
                         <TextField fx:id="searchTextInput" promptText="Search..." />
-                        <Button fx:id="allButton" mnemonicParsing="false" text="All" />
                         <CheckBox fx:id="alsoCompletedCheckbox" mnemonicParsing="false" text="Also completed" />
                      </children>
                   </HBox>

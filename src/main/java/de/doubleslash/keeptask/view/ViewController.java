@@ -43,6 +43,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class ViewController {
@@ -72,9 +73,6 @@ public class ViewController {
 
     @FXML
     private TextField searchTextInput;
-
-    @FXML
-    private Button allButton;
 
     @FXML
     private ToggleButton todayToggleButton;
@@ -155,20 +153,8 @@ public class ViewController {
         });
         updateProjectFilterButtons();
 
-        allButton.setOnAction(actionEvent -> {
-            todayToggleButton.setSelected(false);
-            tomorrowToggleButton.setSelected(false);
-            expiredToggleButton.setSelected(false);
-        });
 
-        alsoCompletedCheckbox.setUserData((Predicate<WorkItem>) workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
         alsoCompletedCheckbox.setOnAction(actionEvent -> {
-                    CheckBox sourceToggleButton = (CheckBox) actionEvent.getSource();
-                    if (sourceToggleButton.isSelected()) {
-                        filters.add((Predicate<WorkItem>) todayToggleButton.getUserData());
-                    } else {
-                        filters.remove(todayToggleButton.getUserData());
-                    }
                     refreshTodos(Optional.empty());
                 }
         );
@@ -187,45 +173,39 @@ public class ViewController {
         return actionEvent -> {
             ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
             if (sourceToggleButton.isSelected()) {
-                filters.add((Predicate<WorkItem>) todayToggleButton.getUserData());
+                timeFilters.add((Predicate<WorkItem>) sourceToggleButton.getUserData());
             } else {
-                filters.remove(todayToggleButton.getUserData());
+                timeFilters.remove(sourceToggleButton.getUserData());
             }
             refreshTodos(Optional.empty());
         };
     }
 
-    List<Predicate<WorkItem>> filters = new ArrayList<>();
+    List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
+    List<Predicate<WorkItem>> projectFilters = new ArrayList<>();
 
     private void updateProjectFilterButtons() {
         Set<String> projectNames = model.getWorkItems().stream().map(workItem -> workItem.getProject()).collect(Collectors.toSet());
         projectFilterHbox.getChildren().clear();
+        projectFilters.clear();
         projectFilterHbox.getChildren().addAll(projectNames.stream().map(projectName -> {
-                            Button button = new Button(projectName);
+                            ToggleButton button = new ToggleButton(projectName);
+                            button.setUserData((Predicate<WorkItem>) workItem -> button.getText().equals(workItem.getProject()));
+
                             button.setOnAction(actionEvent -> {
-                                refreshTodos(Optional.of(workItem -> button.getText().equals(workItem.getProject())));
+                                ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
+                                if (sourceToggleButton.isSelected()) {
+                                    projectFilters.add((Predicate<WorkItem>) sourceToggleButton.getUserData());
+                                } else {
+                                    projectFilters.remove(sourceToggleButton.getUserData());
+                                }
                                 projectTextInput.setText(button.getText());
+                                refreshTodos(Optional.empty());
                             });
                             return button;
                         }
                 ).collect(Collectors.toList())
         );
-    }
-
-    private void openConfirmationWindow() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.CANCEL);
-        alert.setTitle("Confirm exit");
-        alert.setHeaderText("Are you sure you want to close KeepTask?");
-
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(Resources.getResource(Resources.RESOURCE.ICON_MAIN).toString()));
-
-        stage.setAlwaysOnTop(true);
-        alert.showAndWait();
-
-        if (alert.getResult() == ButtonType.YES) {
-            mainStage.close();
-        }
     }
 
     private void refreshTodos(Optional<Predicate<WorkItem>> optionalFilterPredicate) {
@@ -234,9 +214,19 @@ public class ViewController {
 
         ObservableList<WorkItem> workItems = model.getWorkItems();
 
-        for (WorkItem workItem : workItems.stream().filter(filters.stream().reduce(x -> true, Predicate::and)).collect(Collectors.toList())) {
+
+        Stream<WorkItem> a = workItems.stream();
+        if (!timeFilters.isEmpty()) a = a.filter(timeFilters.stream().reduce(x -> false, Predicate::or));
+        if (!projectFilters.isEmpty()) a = a.filter(projectFilters.stream().reduce(x -> false, Predicate::or));
+        a = a.filter(workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
+
+        List<WorkItem> filteredItems = a.collect(Collectors.toList());
+
+        for (WorkItem workItem : filteredItems) {
             children.add(createTodoNode(workItem));
         }
+        if (mainStage != null)
+            mainStage.sizeToScene();
     }
 
     private Node createTodoNode(WorkItem workItem) {
@@ -324,6 +314,22 @@ public class ViewController {
         style = StyleUtils.changeStyleAttribute(style, "fx-border-color",
                 "rgba(" + ColorHelper.colorToCssRgb(color) + ", " + 255 + ")");
         pane.setStyle(style);
+    }
+
+    private void openConfirmationWindow() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.CANCEL);
+        alert.setTitle("Confirm exit");
+        alert.setHeaderText("Are you sure you want to close KeepTask?");
+
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Resources.getResource(Resources.RESOURCE.ICON_MAIN).toString()));
+
+        stage.setAlwaysOnTop(true);
+        alert.showAndWait();
+
+        if (alert.getResult() == ButtonType.YES) {
+            mainStage.close();
+        }
     }
 
     public void setMainStage(Stage mainStage) {
