@@ -26,6 +26,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,8 +255,22 @@ public class ViewController {
         Label projectLabel = new Label(workItem.getProject());
         children1.add(projectLabel);
 
-        Label todoLabel = new Label(workItem.getTodo());
-        children1.add(todoLabel);
+        String todo = workItem.getTodo();
+        List<TodoPart> todoParts = new LinkParser().splitAtLinks(todo);
+
+        TextFlow todoFlow = new TextFlow();
+        for (TodoPart todoPart : todoParts) {
+            Node node;
+            if (todoPart.isLink()) {
+                Hyperlink clickHere = new Hyperlink(todoPart.getStringValue());
+                clickHere.setOnAction((actionEvent) -> BrowserHelper.openURL(todoPart.getStringValue()));
+                node = clickHere;
+            } else {
+                node = new Label(todoPart.getStringValue());
+            }
+            todoFlow.getChildren().add(node);
+        }
+        children1.add(todoFlow);
 
         Label dueDateTimeLabel = new Label("Due: " + workItem.getDueDateTime());
         if (workItem.getDueDateTime() != null)
