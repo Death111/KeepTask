@@ -18,6 +18,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      version: 0.0.${{ github.run_number }}
+      
     steps:
       - uses: actions/checkout@v3
 
@@ -29,10 +32,10 @@ jobs:
           cache: maven
         
       - name: Build
-        run:  mvn -V -B clean verify org.jacoco:jacoco-maven-plugin:0.8.7:prepare-agent org.jacoco:jacoco-maven-plugin:0.8.7:report -Pcoverage
+        run:  mvn -V -B clean verify org.jacoco:jacoco-maven-plugin:0.8.7:prepare-agent org.jacoco:jacoco-maven-plugin:0.8.7:report -Pcoverage -Dproject.version=${{ env.version }}-SNAPSHOT
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: KeepTask
+          name: KeepTask-${{ env.version }}
           path: /home/runner/work/KeepTask/KeepTask/target/KeepTask-*-bin.zip
