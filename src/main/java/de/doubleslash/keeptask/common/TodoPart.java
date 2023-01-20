@@ -18,4 +18,12 @@ public class TodoPart {
     public boolean isLink() {
         return isLink;
     }
+
+    @Override
+    public String toString() {
+        return "TodoPart{" +
+                "stringValue='" + stringValue + '\'' +
+                ", isLink=" + isLink +
+                '}';
+    }
 }

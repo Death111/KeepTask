@@ -44,6 +44,17 @@ public class LinkParserTest {
     }
 
     @Test
+    void shouldNotAddEmptyPartWhenLinkIsAtTheEnd() {
+        String todo = "Hello https://www.google.de";
+        List<TodoPart> split = linkParser.splitAtLinks(todo);
+        assertAll(
+                () -> assertThat(split).hasSize(2),
+                () -> assertEquals(split.get(0), new TodoPart("Hello ", false)),
+                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", true))
+        );
+    }
+
+    @Test
     void shouldFindTwoLinksWhenTwoLinksExist() {
         String todo = "Hello https://www.google.de how are you? Please check http://google.de!";
         List<TodoPart> split = linkParser.splitAtLinks(todo);

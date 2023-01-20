@@ -7,39 +7,29 @@ import java.util.regex.Pattern;
 
 public class LinkParser {
 
-    // Pattern for recognizing a URL, based off RFC 3986 https://stackoverflow.com/a/5713866
-    private static final Pattern urlPattern = Pattern.compile(
-            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
-                    + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
-                    + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*]*)",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+    // Regular expression to match URLs
+    String urlRegex = "https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+    Pattern pattern = Pattern.compile(urlRegex);
 
-    public List<TodoPart> splitAtLinks(String todo) {
+    public List<TodoPart> splitAtLinks(String input) {
         ArrayList<TodoPart> list = new ArrayList<>();
 
-        Matcher matcher = urlPattern.matcher(todo);
 
-        int lastIndex = 0;
+        Matcher matcher = pattern.matcher(input);
 
+        // Find all URLs in the input string
+        int lastEnd = 0;
         while (matcher.find()) {
-            int matchStart = matcher.start(1);
-            int matchEnd = matcher.end();
-
-            if (matchStart != lastIndex) {
-                String extractNormalText = todo.substring(lastIndex, matchStart);
-                list.add(new TodoPart(extractNormalText, false));
-            }
-
-            String extractedLink = todo.substring(matchStart, matchEnd);
-            list.add(new TodoPart(extractedLink, true));
-            lastIndex = matchEnd;
+            // Append the normal text before the link
+            list.add(new TodoPart(input.substring(lastEnd, matcher.start()), false));
+            // link part
+            list.add(new TodoPart(matcher.group(), true));
+            lastEnd = matcher.end();
         }
 
-        if (lastIndex != todo.length()) {
-            String extractNormalText = todo.substring(lastIndex);
-            list.add(new TodoPart(extractNormalText, false));
+        if (lastEnd != input.length()) {
+            list.add(new TodoPart(input.substring(lastEnd), false));
         }
-
         return list;
     }
 }

@@ -224,7 +224,8 @@ public class ViewController {
         List<WorkItem> filteredItems = a.collect(Collectors.toList());
 
         for (WorkItem workItem : filteredItems) {
-            children.add(createTodoNode(workItem));
+            Node todoNode = createTodoNode(workItem);
+            children.add(todoNode);
         }
         if (mainStage != null)
             mainStage.sizeToScene();
@@ -255,22 +256,22 @@ public class ViewController {
         Label projectLabel = new Label(workItem.getProject());
         children1.add(projectLabel);
 
+        HBox todoHbox = new HBox();
         String todo = workItem.getTodo();
         List<TodoPart> todoParts = new LinkParser().splitAtLinks(todo);
-
-        TextFlow todoFlow = new TextFlow();
         for (TodoPart todoPart : todoParts) {
-            Node node;
+            Label label = new Label(todoPart.getStringValue());
             if (todoPart.isLink()) {
-                Hyperlink clickHere = new Hyperlink(todoPart.getStringValue());
-                clickHere.setOnAction((actionEvent) -> BrowserHelper.openURL(todoPart.getStringValue()));
-                node = clickHere;
-            } else {
-                node = new Label(todoPart.getStringValue());
+                label.setOnMouseClicked((actionEvent) -> BrowserHelper.openURL(todoPart.getStringValue()));
+                Color normalLinkColor = Color.BLUE;
+                label.setTextFill(normalLinkColor);
+                label.setUnderline(true);
+                label.setOnMouseEntered((a)->label.setTextFill(Color.AQUA));
+                label.setOnMouseExited((a)->label.setTextFill(normalLinkColor));
             }
-            todoFlow.getChildren().add(node);
+            todoHbox.getChildren().add(label);
         }
-        children1.add(todoFlow);
+        children1.add(todoHbox);
 
         Label dueDateTimeLabel = new Label("Due: " + workItem.getDueDateTime());
         if (workItem.getDueDateTime() != null)
@@ -349,6 +350,7 @@ public class ViewController {
 
     public void setMainStage(Stage mainStage) {
         this.mainStage = mainStage;
+        mainStage.sizeToScene();
     }
 
 }
