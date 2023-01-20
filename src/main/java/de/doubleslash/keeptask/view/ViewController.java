@@ -26,6 +26,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,7 +224,8 @@ public class ViewController {
         List<WorkItem> filteredItems = a.collect(Collectors.toList());
 
         for (WorkItem workItem : filteredItems) {
-            children.add(createTodoNode(workItem));
+            Node todoNode = createTodoNode(workItem);
+            children.add(todoNode);
         }
         if (mainStage != null)
             mainStage.sizeToScene();
@@ -254,8 +256,22 @@ public class ViewController {
         Label projectLabel = new Label(workItem.getProject());
         children1.add(projectLabel);
 
-        Label todoLabel = new Label(workItem.getTodo());
-        children1.add(todoLabel);
+        HBox todoHbox = new HBox();
+        String todo = workItem.getTodo();
+        List<TodoPart> todoParts = new LinkParser().splitAtLinks(todo);
+        for (TodoPart todoPart : todoParts) {
+            Label label = new Label(todoPart.getStringValue());
+            if (todoPart.isLink()) {
+                label.setOnMouseClicked((actionEvent) -> BrowserHelper.openURL(todoPart.getStringValue()));
+                Color normalLinkColor = Color.BLUE;
+                label.setTextFill(normalLinkColor);
+                label.setUnderline(true);
+                label.setOnMouseEntered((a)->label.setTextFill(Color.AQUA));
+                label.setOnMouseExited((a)->label.setTextFill(normalLinkColor));
+            }
+            todoHbox.getChildren().add(label);
+        }
+        children1.add(todoHbox);
 
         Label dueDateTimeLabel = new Label("Due: " + workItem.getDueDateTime());
         if (workItem.getDueDateTime() != null)
@@ -334,6 +350,7 @@ public class ViewController {
 
     public void setMainStage(Stage mainStage) {
         this.mainStage = mainStage;
+        mainStage.sizeToScene();
     }
 
 }
