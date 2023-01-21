@@ -33,7 +33,7 @@ public class Resources {
       /** LAYOUTS **/
       // main
       FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
-
+      FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
       SVG_CALENDAR_DAYS_ICON("/svgs/calendar-days.svg"),
 
       SVG_CLOSE_ICON("/svgs/xmark.svg"),

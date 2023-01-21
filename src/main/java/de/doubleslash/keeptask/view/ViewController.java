@@ -17,16 +17,18 @@
 package de.doubleslash.keeptask.view;
 
 import de.doubleslash.keeptask.common.*;
+import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -145,10 +148,10 @@ public class ViewController {
             dueDatePicker.setValue(null);
         });
 
-        refreshTodos(Optional.empty());
+        refreshTodos();
 
         model.getWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
-            refreshTodos(Optional.empty());
+            refreshTodos();
             mainStage.sizeToScene();
             updateProjectFilterButtons();
         });
@@ -156,7 +159,7 @@ public class ViewController {
 
 
         alsoCompletedCheckbox.setOnAction(actionEvent -> {
-                    refreshTodos(Optional.empty());
+                    refreshTodos();
                 }
         );
 
@@ -178,7 +181,7 @@ public class ViewController {
             } else {
                 timeFilters.remove(sourceToggleButton.getUserData());
             }
-            refreshTodos(Optional.empty());
+            refreshTodos();
         };
     }
 
@@ -201,7 +204,7 @@ public class ViewController {
                                     projectFilters.remove(sourceToggleButton.getUserData());
                                 }
                                 projectTextInput.setText(button.getText());
-                                refreshTodos(Optional.empty());
+                                refreshTodos();
                             });
                             return button;
                         }
@@ -209,12 +212,11 @@ public class ViewController {
         );
     }
 
-    private void refreshTodos(Optional<Predicate<WorkItem>> optionalFilterPredicate) {
+    private void refreshTodos() {
         ObservableList<Node> children = workItemVBox.getChildren();
         children.clear();
 
         ObservableList<WorkItem> workItems = model.getWorkItems();
-
 
         Stream<WorkItem> a = workItems.stream();
         if (!timeFilters.isEmpty()) a = a.filter(timeFilters.stream().reduce(x -> false, Predicate::or));
@@ -266,8 +268,8 @@ public class ViewController {
                 Color normalLinkColor = Color.BLUE;
                 label.setTextFill(normalLinkColor);
                 label.setUnderline(true);
-                label.setOnMouseEntered((a)->label.setTextFill(Color.AQUA));
-                label.setOnMouseExited((a)->label.setTextFill(normalLinkColor));
+                label.setOnMouseEntered((a) -> label.setTextFill(Color.AQUA));
+                label.setOnMouseExited((a) -> label.setTextFill(normalLinkColor));
             }
             todoHbox.getChildren().add(label);
         }
@@ -296,7 +298,7 @@ public class ViewController {
         editButton.setMinSize(20, 18);
         editButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         children.add(editButton);
-        // TODO edit functionality
+        editButton.setOnAction((actionEvent) -> editTodoClicked(workItem));
 
         Button deleteButton = new Button("",
                 SvgNodeProvider.getSvgNodeWithScale(Resources.RESOURCE.SVG_TRASH_ICON, 0.03, 0.03));
@@ -321,6 +323,40 @@ public class ViewController {
         });
 
         return hbox;
+    }
+
+    private void editTodoClicked(WorkItem workItem) {
+
+        final Dialog<WorkItem> dialog = new Dialog<>();
+        dialog.setTitle("Edit work item");
+        dialog.setHeaderText("Edit it!");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane grid;
+        final FXMLLoader loader = new FXMLLoader(Resources.getResource(Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT));
+
+        try {
+            grid = loader.load();
+        } catch (final IOException e) {
+            throw new FXMLLoaderException(String.format("Error while loading '%s'.", Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT), e);
+        }
+        EditWorkItemController editWorkItemController = loader.getController();
+        editWorkItemController.initializeWith(workItem);
+        dialog.getDialogPane().setContent(grid);
+        dialog.initOwner(mainStage);
+        dialog.setResultConverter((dialogButton) -> {
+            if (dialogButton == ButtonType.OK) {
+                return editWorkItemController.getWorkItemFromUserInput();
+            }
+            return null;
+        });
+
+        final Optional<WorkItem> result = dialog.showAndWait();
+
+        result.ifPresent(project ->{
+            controller.editWorkItem(workItem, result.get());
+            refreshTodos();
+        });
     }
 
     private void runUpdateMainBackgroundColor() {

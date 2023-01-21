@@ -13,15 +13,6 @@ public class WorkItem {
     private long id;
 
     private String project;
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
     private  String priority;
     private String todo;
     private LocalDateTime createdDateTime;
@@ -102,5 +93,16 @@ public class WorkItem {
 
     public String getNote() {
         return note;
+    }
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

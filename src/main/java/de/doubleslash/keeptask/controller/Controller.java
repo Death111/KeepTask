@@ -66,4 +66,18 @@ public class Controller {
     public void shutdown() {
         LOG.info("Controller shutdown");
     }
+
+    public void editWorkItem(WorkItem oldItem, WorkItem newItem) {
+
+        oldItem.setFinished(newItem.isFinished());
+        oldItem.setTodo(newItem.getTodo());
+        oldItem.setDueDateTime(newItem.getDueDateTime());
+        oldItem.setPriority(newItem.getPriority());
+        oldItem.setProject(newItem.getProject());
+        oldItem.setCreatedDateTime(newItem.getCreatedDateTime());
+        oldItem.setCompletedDateTime(newItem.getCompletedDateTime());
+        oldItem.setNote(newItem.getNote());
+
+        model.getWorkItemRepository().save(oldItem);
+    }
 }
