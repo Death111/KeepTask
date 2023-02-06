@@ -365,8 +365,6 @@ public class ViewController {
         Color color = model.defaultBackgroundColor.get();
         String style = StyleUtils.changeStyleAttribute(pane.getStyle(), "fx-background-color",
                 "rgba(" + ColorHelper.colorToCssRgba(color) + ")");
-        style = StyleUtils.changeStyleAttribute(style, "fx-border-color",
-                "rgba(" + ColorHelper.colorToCssRgb(color) + ", " + 255 + ")");
         pane.setStyle(style);
     }
 
