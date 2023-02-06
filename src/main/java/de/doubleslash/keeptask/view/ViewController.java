@@ -108,6 +108,9 @@ public class ViewController {
     @FXML
     private VBox workItemVBox;
 
+    private final List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
+    private final List<String> projectNameFilters = new ArrayList<>();
+
     @Autowired
     public ViewController(final Model model, final Controller controller) {
         this.model = model;
@@ -148,20 +151,15 @@ public class ViewController {
             dueDatePicker.setValue(null);
         });
 
-        refreshTodos();
-
         model.getWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
-            refreshTodos();
-            mainStage.sizeToScene();
             updateProjectFilterButtons();
+            refreshTodos();
         });
+
+        refreshTodos();
         updateProjectFilterButtons();
 
-
-        alsoCompletedCheckbox.setOnAction(actionEvent -> {
-                    refreshTodos();
-                }
-        );
+        alsoCompletedCheckbox.setOnAction(actionEvent -> refreshTodos());
 
         todayToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()));
         todayToggleButton.setOnAction(toggleButtonPressedAction());
@@ -185,31 +183,36 @@ public class ViewController {
         };
     }
 
-    List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
-    List<Predicate<WorkItem>> projectFilters = new ArrayList<>();
 
     private void updateProjectFilterButtons() {
         Set<String> projectNames = model.getWorkItems().stream().map(workItem -> workItem.getProject()).collect(Collectors.toSet());
         projectFilterHbox.getChildren().clear();
-        projectFilters.clear();
+
+        // recreate buttons
         projectFilterHbox.getChildren().addAll(projectNames.stream().map(projectName -> {
                             ToggleButton button = new ToggleButton(projectName);
-                            button.setUserData((Predicate<WorkItem>) workItem -> button.getText().equals(workItem.getProject()));
+                            button.setUserData(projectName);
+                            button.setSelected(projectNameFilters.contains(projectName));
 
                             button.setOnAction(actionEvent -> {
                                 ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
                                 if (sourceToggleButton.isSelected()) {
-                                    projectFilters.add((Predicate<WorkItem>) sourceToggleButton.getUserData());
+                                    projectNameFilters.add(projectName);
                                 } else {
-                                    projectFilters.remove(sourceToggleButton.getUserData());
+                                    projectNameFilters.remove(projectName);
                                 }
-                                projectTextInput.setText(button.getText());
+                                projectTextInput.setText(projectName);
                                 refreshTodos();
                             });
                             return button;
                         }
                 ).collect(Collectors.toList())
         );
+
+        // reset previous filter - only keep the ones which still exist
+        List<String> tempProjectNameFilters = projectNameFilters.stream().filter(projectFilter -> projectNames.stream().anyMatch(projectName -> projectFilter.equals(projectName))).collect(Collectors.toList());
+        projectNameFilters.clear();
+        projectNameFilters.addAll(tempProjectNameFilters);
     }
 
     private void refreshTodos() {
@@ -218,12 +221,14 @@ public class ViewController {
 
         ObservableList<WorkItem> workItems = model.getWorkItems();
 
-        Stream<WorkItem> a = workItems.stream();
-        if (!timeFilters.isEmpty()) a = a.filter(timeFilters.stream().reduce(x -> false, Predicate::or));
-        if (!projectFilters.isEmpty()) a = a.filter(projectFilters.stream().reduce(x -> false, Predicate::or));
-        a = a.filter(workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
+        Stream<WorkItem> filteredWorkItemStream = workItems.stream();
+        if (!timeFilters.isEmpty())
+            filteredWorkItemStream = filteredWorkItemStream.filter(timeFilters.stream().reduce(x -> false, Predicate::or));
+        if (!projectNameFilters.isEmpty())
+            filteredWorkItemStream = filteredWorkItemStream.filter(workItem -> projectNameFilters.stream().anyMatch(filter -> workItem.getProject().equals(filter)));
+        filteredWorkItemStream = filteredWorkItemStream.filter(workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
 
-        List<WorkItem> filteredItems = a.collect(Collectors.toList());
+        List<WorkItem> filteredItems = filteredWorkItemStream.collect(Collectors.toList());
 
         for (WorkItem workItem : filteredItems) {
             Node todoNode = createTodoNode(workItem);
@@ -286,9 +291,6 @@ public class ViewController {
         Label completedDateTimeLabel = new Label("Completed: " + workItem.getCompletedDateTime());
         if (workItem.isFinished()) // TODO this is only working on rerender
             children1.add(completedDateTimeLabel);
-
-        Label createdDateTimeLabel = new Label("Created: " + workItem.getCreatedDateTime());
-        //children1.add(createdDateTimeLabel);
 
         children.add(hbox2);
 
@@ -353,7 +355,7 @@ public class ViewController {
 
         final Optional<WorkItem> result = dialog.showAndWait();
 
-        result.ifPresent(project ->{
+        result.ifPresent(project -> {
             controller.editWorkItem(workItem, result.get());
             refreshTodos();
         });
