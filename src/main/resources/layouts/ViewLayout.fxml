@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: rgba(54,143,179,0.01); -fx-background-radius: 10 10 10 10; -fx-border-radius: 10 10 10 10; -fx-border-color: grey; -fx-border-style: solid; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.doubleslash.keeptask.view.ViewController">
+<Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: rgba(54,143,179,0.01); -fx-background-radius: 10 10 10 10; -fx-border-radius: 10 10 10 10; -fx-border-color: grey; -fx-border-style: solid; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.doubleslash.keeptask.view.ViewController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
          <children>
@@ -59,7 +62,19 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="workItemVBox" />
+            <HBox fx:id="sortingCriteriaHBox" layoutX="10.0" layoutY="10.0">
+               <children>
+                  <ComboBox fx:id="addSortingCriteriaCbx">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                     <tooltip>
+                        <Tooltip text="Click to add new sorting criteria" />
+                     </tooltip>
+                  </ComboBox>
+               </children>
+            </HBox>
+            <VBox fx:id="workItemVBox" layoutX="10.0" layoutY="167.0" />
          </children>
       </VBox>
    </children>
