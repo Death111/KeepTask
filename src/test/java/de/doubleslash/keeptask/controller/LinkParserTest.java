@@ -28,7 +28,7 @@ public class LinkParserTest {
         List<TodoPart> split = linkParser.splitAtLinks(todo);
 
         assertThat(split).hasSize(1);
-        assertEquals(split.get(0), new TodoPart(todo, false));
+        assertEquals(split.get(0), new TodoPart(todo));
     }
 
     @Test
@@ -37,9 +37,9 @@ public class LinkParserTest {
         List<TodoPart> split = linkParser.splitAtLinks(todo);
         assertAll(
                 () -> assertThat(split).hasSize(3),
-                () -> assertEquals(split.get(0), new TodoPart("Hello ", false)),
-                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", true)),
-                () -> assertEquals(split.get(2), new TodoPart(" how are you?", false))
+                () -> assertEquals(split.get(0), new TodoPart("Hello ")),
+                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", "https://www.google.de")),
+                () -> assertEquals(split.get(2), new TodoPart(" how are you?"))
         );
     }
 
@@ -49,8 +49,8 @@ public class LinkParserTest {
         List<TodoPart> split = linkParser.splitAtLinks(todo);
         assertAll(
                 () -> assertThat(split).hasSize(2),
-                () -> assertEquals(split.get(0), new TodoPart("Hello ", false)),
-                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", true))
+                () -> assertEquals(split.get(0), new TodoPart("Hello ")),
+                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", "https://www.google.de"))
         );
     }
 
@@ -60,17 +60,18 @@ public class LinkParserTest {
         List<TodoPart> split = linkParser.splitAtLinks(todo);
         assertAll(
                 () ->  assertThat(split).hasSize(5),
-                () -> assertEquals(split.get(0), new TodoPart("Hello ", false)),
-                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", true)),
-                () -> assertEquals(split.get(2), new TodoPart(" how are you? Please check ", false)),
-                () -> assertEquals(split.get(3), new TodoPart("http://google.de", true)),
-                () -> assertEquals(split.get(4), new TodoPart("!", false))
+                () -> assertEquals(split.get(0), new TodoPart("Hello ")),
+                () -> assertEquals(split.get(1), new TodoPart("https://www.google.de", "https://www.google.de")),
+                () -> assertEquals(split.get(2), new TodoPart(" how are you? Please check ")),
+                () -> assertEquals(split.get(3), new TodoPart("http://google.de", "http://google.de")),
+                () -> assertEquals(split.get(4), new TodoPart("!"))
         );
     }
 
     private void assertEquals(TodoPart part1, TodoPart part2) {
         assertAll(
                 () -> assertThat(part1.getStringValue()).isEqualTo(part2.getStringValue()),
+                () -> assertThat(part1.getLink()).isEqualTo(part2.getLink()),
                 () -> assertThat(part1.isLink()).isEqualTo(part2.isLink())
         );
     }

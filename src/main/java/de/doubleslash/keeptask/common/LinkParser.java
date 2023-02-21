@@ -21,14 +21,14 @@ public class LinkParser {
         int lastEnd = 0;
         while (matcher.find()) {
             // Append the normal text before the link
-            list.add(new TodoPart(input.substring(lastEnd, matcher.start()), false));
+            list.add(new TodoPart(input.substring(lastEnd, matcher.start())));
             // link part
-            list.add(new TodoPart(matcher.group(), true));
+            list.add(new TodoPart(matcher.group(), matcher.group()));
             lastEnd = matcher.end();
         }
 
         if (lastEnd != input.length()) {
-            list.add(new TodoPart(input.substring(lastEnd), false));
+            list.add(new TodoPart(input.substring(lastEnd)));
         }
         return list;
     }
