@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 public class LinkParserTest {
 
-
     private LinkParser linkParser;
 
     @BeforeEach
@@ -70,12 +69,12 @@ public class LinkParserTest {
 
     @Test
     void shouldFindMarkdownLink() {
-        String todo = "Hello [google](https://www.google.de) how are you?";
+        String todo = "Hello [go ogle](https://www.google.de) how are you?";
         List<TodoPart> split = linkParser.splitAtLinks(todo);
         assertAll(
                 () -> assertThat(split).hasSize(3),
                 () -> assertEquals(split.get(0), new TodoPart("Hello ")),
-                () -> assertEquals(split.get(1), new TodoPart("google", "https://www.google.de")),
+                () -> assertEquals(split.get(1), new TodoPart("go ogle", "https://www.google.de")),
                 () -> assertEquals(split.get(2), new TodoPart(" how are you?"))
         );
     }
