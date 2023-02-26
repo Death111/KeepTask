@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 
 import javax.annotation.PreDestroy;
 
-import de.doubleslash.keeptask.common.WorkItem;
+import de.doubleslash.keeptask.model.WorkItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

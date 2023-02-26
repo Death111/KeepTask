@@ -18,6 +18,8 @@ package de.doubleslash.keeptask.view;
 
 import de.doubleslash.keeptask.common.*;
 import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
+import de.doubleslash.keeptask.model.TodoPart;
+import de.doubleslash.keeptask.model.WorkItem;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

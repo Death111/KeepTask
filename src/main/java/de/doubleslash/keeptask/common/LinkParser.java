@@ -1,5 +1,7 @@
 package de.doubleslash.keeptask.common;
 
+import de.doubleslash.keeptask.model.TodoPart;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

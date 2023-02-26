@@ -20,62 +20,41 @@ import java.net.URL;
 
 public class Resources {
 
-   private Resources() {
-      throw new IllegalStateException("Utility class");
-   }
+    private Resources() {
+        throw new IllegalStateException("Utility class");
+    }
 
-   public enum RESOURCE {
-      /** FONTS **/
-      FONT_BOLD("/font/OpenSans-Bold.ttf"),
-      FONT_SEMI_BOLD("/font/OpenSans-SemiBold.ttf"),
-      FONT_REGULAR("/font/OpenSans-Regular.ttf"),
+    public enum RESOURCE {
+        /**
+         * FONTS
+         **/
+        FONT_BOLD("/font/OpenSans-Bold.ttf"),
+        FONT_REGULAR("/font/OpenSans-Regular.ttf"),
 
-      /** LAYOUTS **/
-      // main
-      FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
-      FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
-      SVG_CALENDAR_DAYS_ICON("/svgs/calendar-days.svg"),
+        /**
+         * LAYOUTS
+         **/
+        // main
+        FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
+        FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
+        SVG_TRASH_ICON("/svgs/trash-can.svg"),
 
-      SVG_CLOSE_ICON("/svgs/xmark.svg"),
+        SVG_PENCIL_ICON("/svgs/pencil.svg"),
 
-      SVG_SETTINGS_ICON("/svgs/gear.svg"),
+        ICON_MAIN("/icons/icon.png");
 
-      SVG_MINUS_ICON("/svgs/minus.svg"),
+        String resourceLocation;
 
-      SVG_TRASH_ICON("/svgs/trash-can.svg"),
+        private RESOURCE(final String resourceLocation) {
+            this.resourceLocation = resourceLocation;
+        }
 
-      SVG_PENCIL_ICON("/svgs/pencil.svg"),
+        public String getResourceLocation() {
+            return resourceLocation;
+        }
+    }
 
-      SVG_CLIPBOARD("/svgs/clipboard.svg"),
-
-      SVG_BUG_ICON("/svgs/bug.svg"),
-
-      SVG_LAYOUT_ICON("/svgs/border-all.svg"),
-
-      SVG_ABOUT_ICON("/svgs/info.svg"),
-
-      SVG_COLOR_ICON("/svgs/palette.svg"),
-
-      SVG_IMPORT_EXPORT_ICON("/svgs/sort.svg"),
-
-      SVG_LICENSES_ICON("/svgs/closed-captioning.svg"),
-
-      ICON_MAIN("/icons/icon.png")
-
-      ;
-
-      String resourceLocation;
-
-      private RESOURCE(final String resourceLocation) {
-         this.resourceLocation = resourceLocation;
-      }
-
-      public String getResourceLocation() {
-         return resourceLocation;
-      }
-   }
-
-   public static URL getResource(final RESOURCE resource) {
-      return Resources.class.getResource(resource.getResourceLocation());
-   }
+    public static URL getResource(final RESOURCE resource) {
+        return Resources.class.getResource(resource.getResourceLocation());
+    }
 }

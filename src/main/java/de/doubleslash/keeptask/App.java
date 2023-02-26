@@ -23,7 +23,7 @@ import java.util.List;
 
 import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.common.Resources.RESOURCE;
-import de.doubleslash.keeptask.common.WorkItem;
+import de.doubleslash.keeptask.model.WorkItem;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -40,7 +40,6 @@ import de.doubleslash.keeptask.common.FontProvider;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.view.ViewController;
-import de.doubleslash.keeptask.viewpopup.GlobalScreenListener;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -64,8 +63,6 @@ public class App extends Application {
     private Controller controller;
 
     private ViewController viewController;
-
-    private GlobalScreenListener globalScreenListener;
 
     @Override
     public void init() throws Exception {

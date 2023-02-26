@@ -16,7 +16,6 @@
 
 package de.doubleslash.keeptask.model;
 
-import de.doubleslash.keeptask.common.WorkItem;
 import de.doubleslash.keeptask.model.repos.WorkItemRepository;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
