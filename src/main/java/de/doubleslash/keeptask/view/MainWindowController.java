@@ -22,8 +22,7 @@ import de.doubleslash.keeptask.model.TodoPart;
 import de.doubleslash.keeptask.model.WorkItem;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -47,9 +46,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class MainWindowController {
@@ -74,7 +70,7 @@ public class MainWindowController {
     @FXML
     private VBox filterVBox;
 
-
+    // TODO extract new ToDo-section into own controller
     @FXML
     private TextField prioTextInput;
 
@@ -90,8 +86,11 @@ public class MainWindowController {
     @FXML
     private Button addTodoButton;
 
+    // TODO extract TODO ListView to own controller
     @FXML
     private VBox workItemVBox;
+
+    SortedList<WorkItem> sortedWorkItems;
 
 
     @Autowired
@@ -102,6 +101,12 @@ public class MainWindowController {
 
     @FXML
     private void initialize() {
+        // TODO make sorting configurable
+        sortedWorkItems = new SortedList<>(model.getWorkFilteredItems());
+        Comparator<WorkItem> comparing = Comparator.comparing(workItem -> workItem.getDueDateTime() != null ? workItem.getDueDateTime() : LocalDateTime.MIN);
+        comparing = comparing.reversed();
+        sortedWorkItems.setComparator(comparing);
+
 
         loadFiltersLayout();
 
@@ -166,9 +171,7 @@ public class MainWindowController {
         ObservableList<Node> children = workItemVBox.getChildren();
         children.clear();
 
-        ObservableList<WorkItem> filteredItems = model.getWorkFilteredItems();
-
-        for (WorkItem workItem : filteredItems) {
+        for (WorkItem workItem : sortedWorkItems) {
             Node todoNode = createTodoNode(workItem);
             children.add(todoNode);
         }

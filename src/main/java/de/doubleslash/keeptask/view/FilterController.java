@@ -73,6 +73,8 @@ public class FilterController {
 
         expiredToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false : LocalDate.now().isAfter(workItem.getDueDateTime().toLocalDate()));
         expiredToggleButton.setOnAction(toggleButtonPressedAction());
+
+        updateFilters();
     }
 
     private EventHandler<ActionEvent> toggleButtonPressedAction() {
