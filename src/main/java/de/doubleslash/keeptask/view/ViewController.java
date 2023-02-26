@@ -269,7 +269,8 @@ public class ViewController {
         for (TodoPart todoPart : todoParts) {
             Label label = new Label(todoPart.getStringValue());
             if (todoPart.isLink()) {
-                label.setOnMouseClicked((actionEvent) -> BrowserHelper.openURL(todoPart.getStringValue()));
+                label.setOnMouseClicked((actionEvent) -> BrowserHelper.openURL(todoPart.getLink()));
+                label.setTooltip(new Tooltip(todoPart.getLink()));
                 Color normalLinkColor = Color.BLUE;
                 label.setTextFill(normalLinkColor);
                 label.setUnderline(true);
