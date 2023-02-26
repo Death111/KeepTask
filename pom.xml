@@ -89,13 +89,6 @@
       <artifactId>flyway-core</artifactId>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.1stleg/jnativehook -->
-    <dependency>
-      <groupId>com.1stleg</groupId>
-      <artifactId>jnativehook</artifactId>
-      <version>2.1.0</version>
-    </dependency>
-
     <!-- maven assembly plugin -->
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
@@ -162,26 +155,6 @@
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>create-keeptask-zip</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>./assembly.xml</descriptor>
-              </descriptors>
-              <finalName>KeepTask-${project.version}</finalName>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
   </build>
 </project>

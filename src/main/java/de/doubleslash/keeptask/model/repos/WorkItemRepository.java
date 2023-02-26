@@ -16,7 +16,7 @@
 
 package de.doubleslash.keeptask.model.repos;
 
-import de.doubleslash.keeptask.common.WorkItem;
+import de.doubleslash.keeptask.model.WorkItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

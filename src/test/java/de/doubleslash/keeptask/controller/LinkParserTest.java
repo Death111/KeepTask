@@ -1,7 +1,7 @@
 package de.doubleslash.keeptask.controller;
 
 import de.doubleslash.keeptask.common.LinkParser;
-import de.doubleslash.keeptask.common.TodoPart;
+import de.doubleslash.keeptask.model.TodoPart;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

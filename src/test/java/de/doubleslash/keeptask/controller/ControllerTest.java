@@ -33,15 +33,13 @@ public class ControllerTest {
    private static Controller testee;
 
    private  Model model;
-   private  DateProvider mockedDateProvider;
 
    private WorkItemRepository mockedWorkItemRepository;
 
    @BeforeEach
    void beforeTest() {
       mockedWorkItemRepository = Mockito.mock(WorkItemRepository.class);
-      model = new Model(mockedWorkItemRepository);
-      mockedDateProvider = Mockito.mock(DateProvider.class);
-      testee = new Controller(model, mockedDateProvider);
+      model = new Model();
+      testee = new Controller(model, mockedWorkItemRepository);
    }
 }
