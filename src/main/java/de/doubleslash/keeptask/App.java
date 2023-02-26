@@ -19,11 +19,11 @@ package de.doubleslash.keeptask;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
 
+import de.doubleslash.keeptask.common.FxmlLayout;
 import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.common.Resources.RESOURCE;
-import de.doubleslash.keeptask.model.WorkItem;
+import de.doubleslash.keeptask.view.MainWindowController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -39,7 +39,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import de.doubleslash.keeptask.common.FontProvider;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
-import de.doubleslash.keeptask.view.ViewController;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -62,7 +61,7 @@ public class App extends Application {
 
     private Controller controller;
 
-    private ViewController viewController;
+    private MainWindowController viewController;
 
     @Override
     public void init() throws Exception {
@@ -75,6 +74,8 @@ public class App extends Application {
         LOG.info("KeepTask Version: '{}'.", applicationProperties.getBuildVersion());
         LOG.info("KeepTask Build Timestamp: '{}'.", applicationProperties.getBuildTimestamp());
         LOG.info("KeepTask Git Infos: id '{}', branch '{}', time '{}', dirty '{}'.", applicationProperties.getGitCommitId(), applicationProperties.getGitBranch(), applicationProperties.getGitCommitTime(), applicationProperties.getGitDirty());
+
+        FxmlLayout.setContext(springContext);
 
         model = springContext.getBean(Model.class);
         controller = springContext.getBean(Controller.class);
@@ -96,8 +97,7 @@ public class App extends Application {
     private void initialiseApplication(final Stage primaryStage) throws Exception {
         FontProvider.loadFonts();
 
-        List<WorkItem> workItems = model.getWorkItemRepository().findAll();
-        model.setWorkItems(workItems);
+        controller.init();
 
         initialiseAndShowUI(primaryStage);
     }
@@ -111,9 +111,7 @@ public class App extends Application {
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(windowEvent -> LOG.info("On close request"));
 
-        final FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(Resources.getResource(RESOURCE.FXML_VIEW_LAYOUT));
-        loader.setControllerFactory(springContext::getBean);
+        final FXMLLoader loader = FxmlLayout.createLoaderFor(RESOURCE.FXML_VIEW_LAYOUT);
 
         final Pane mainPane = loader.load();
         viewController = loader.getController();

@@ -37,11 +37,14 @@ public class Resources {
         // main
         FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
         FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
+        FXML_FILTER_LAYOUT("/layouts/FiltersLayout.fxml"),
+
         SVG_TRASH_ICON("/svgs/trash-can.svg"),
 
         SVG_PENCIL_ICON("/svgs/pencil.svg"),
 
-        ICON_MAIN("/icons/icon.png");
+        ICON_MAIN("/icons/icon.png")
+        ;
 
         String resourceLocation;
 
