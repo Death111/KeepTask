@@ -1,4 +1,4 @@
-package de.doubleslash.keeptask.common;
+package de.doubleslash.keeptask.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

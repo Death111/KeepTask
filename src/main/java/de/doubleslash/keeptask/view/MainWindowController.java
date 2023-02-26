@@ -19,12 +19,14 @@ package de.doubleslash.keeptask.view;
 import de.doubleslash.keeptask.common.*;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
+
 import de.doubleslash.keeptask.model.Model;
+import de.doubleslash.keeptask.model.TodoPart;
+import de.doubleslash.keeptask.model.WorkItem;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -46,37 +48,30 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 @Component
-public class ViewController {
-    private static final Logger LOG = LoggerFactory.getLogger(ViewController.class);
+public class MainWindowController {
+    private static final Logger LOG = LoggerFactory.getLogger(MainWindowController.class);
+
     private final Model model;
     private final Controller controller;
-    private final Delta dragDelta = new Delta();
-    private final List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
-    private final List<String> projectNameFilters = new ArrayList<>();
+
+    private Point dragDelta = new Point(0, 0);
     private Stage mainStage;
     @FXML
     private Pane pane;
     @FXML
-    private HBox projectFilterHbox;
-    @FXML
     private Button minimizeButton;
     @FXML
     private Button closeButton;
+
     @FXML
-    private TextField searchTextInput;
-    @FXML
-    private ToggleButton todayToggleButton;
-    @FXML
-    private ToggleButton tomorrowToggleButton;
-    @FXML
-    private ToggleButton expiredToggleButton;
-    @FXML
-    private CheckBox alsoCompletedCheckbox;
+    private VBox filterVBox;
+
+    // TODO extract new ToDo-section into own controller
     @FXML
     private TextField prioTextInput;
     @FXML
@@ -87,16 +82,22 @@ public class ViewController {
     private DatePicker dueDatePicker;
     @FXML
     private Button addTodoButton;
-    @FXML
-    private VBox workItemVBox;
+
     @FXML
     private HBox sortingCriteriaHBox;
     @FXML
     private ComboBox addSortingCriteriaCbx;
     private ObservableList<SortingCriteria> sortingCriteriaList = FXCollections.observableArrayList();
 
+
+    // TODO extract TODO ListView to own controller
+    @FXML
+    private VBox workItemVBox;
+
+    SortedList<WorkItem> sortedWorkItems;
+
     @Autowired
-    public ViewController(final Model model, final Controller controller) {
+    public MainWindowController(final Model model, final Controller controller) {
         this.model = model;
         this.controller = controller;
     }
@@ -114,6 +115,14 @@ public class ViewController {
 
     @FXML
     private void initialize() {
+        // TODO make sorting configurable
+        sortedWorkItems = new SortedList<>(model.getWorkFilteredItems());
+        Comparator<WorkItem> comparing = Comparator.comparing(workItem -> workItem.getDueDateTime() != null ? workItem.getDueDateTime() : LocalDateTime.MIN);
+        comparing = comparing.reversed();
+        sortedWorkItems.setComparator(comparing);
+
+
+        loadFiltersLayout();
 
         closeButton.setOnAction(ae -> openConfirmationWindow());
         minimizeButton.setOnAction(ae -> mainStage.setIconified(true));
@@ -123,13 +132,14 @@ public class ViewController {
         // Drag stage
         pane.setOnMousePressed(mouseEvent -> {
             // record a delta distance for the drag and drop operation.
-            dragDelta.x = mainStage.getX() - mouseEvent.getScreenX();
-            dragDelta.y = mainStage.getY() - mouseEvent.getScreenY();
+            double x = mainStage.getX() - mouseEvent.getScreenX();
+            double y = mainStage.getY() - mouseEvent.getScreenY();
+            dragDelta = new Point(x, y);
         });
 
         pane.setOnMouseDragged(mouseEvent -> {
-            mainStage.setX(mouseEvent.getScreenX() + dragDelta.x);
-            mainStage.setY(mouseEvent.getScreenY() + dragDelta.y);
+            mainStage.setX(mouseEvent.getScreenX() + dragDelta.getX());
+            mainStage.setY(mouseEvent.getScreenY() + dragDelta.getY());
         });
 
         addTodoButton.setOnAction((actionEvent) -> {
@@ -147,30 +157,9 @@ public class ViewController {
             dueDatePicker.setValue(null);
         });
 
-        model.getWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
-            updateProjectFilterButtons();
+        model.getWorkFilteredItems().addListener((ListChangeListener<? super WorkItem>) change -> {
             refreshTodos();
         });
-
-        refreshTodos();
-        updateProjectFilterButtons();
-
-        alsoCompletedCheckbox.setOnAction(actionEvent -> refreshTodos());
-
-        todayToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ?
-                false :
-                LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()));
-        todayToggleButton.setOnAction(toggleButtonPressedAction());
-
-        tomorrowToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ?
-                false :
-                LocalDate.now().plusDays(1).isEqual(workItem.getDueDateTime().toLocalDate()));
-        tomorrowToggleButton.setOnAction(toggleButtonPressedAction());
-
-        expiredToggleButton.setUserData((Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ?
-                false :
-                LocalDate.now().isAfter(workItem.getDueDateTime().toLocalDate()));
-        expiredToggleButton.setOnAction(toggleButtonPressedAction());
 
         sortingCriteriaList.addListener((ListChangeListener<? super SortingCriteria>) change -> {
             if (!change.next()) return;
@@ -197,84 +186,44 @@ public class ViewController {
             sortingCriteriaList.add((SortingCriteria) newValue);
             addSortingCriteriaCbx.getSelectionModel().clearSelection();
         });
+
+        model.latestSelectedProjectProperty().addListener((obs, old, newValue) -> {
+            projectTextInput.textProperty().set(newValue);
+        });
+
+        refreshTodos();
     }
 
     private void addSortingCriteria(String sortingCriteriaString) {
         sortingCriteriaList.add(SortingCriteria.valueOf(sortingCriteriaString));
     }
 
-    private EventHandler<ActionEvent> toggleButtonPressedAction() {
-        return actionEvent -> {
-            ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
-            if (sourceToggleButton.isSelected()) {
-                timeFilters.add((Predicate<WorkItem>) sourceToggleButton.getUserData());
-            } else {
-                timeFilters.remove(sourceToggleButton.getUserData());
-            }
-            refreshTodos();
-        };
-    }
+     private void loadFiltersLayout() {
+        final FXMLLoader loader = FxmlLayout.createLoaderFor(Resources.RESOURCE.FXML_FILTER_LAYOUT);
 
-    private void updateProjectFilterButtons() {
-        Set<String> projectNames = model.getWorkItems()
-                .stream()
-                .map(workItem -> workItem.getProject())
-                .collect(Collectors.toSet());
-        projectFilterHbox.getChildren().clear();
-
-        // recreate buttons
-        projectFilterHbox.getChildren().addAll(projectNames.stream().map(projectName -> {
-            ToggleButton button = new ToggleButton(projectName);
-            button.setUserData(projectName);
-            button.setSelected(projectNameFilters.contains(projectName));
-
-            button.setOnAction(actionEvent -> {
-                ToggleButton sourceToggleButton = (ToggleButton) actionEvent.getSource();
-                if (sourceToggleButton.isSelected()) {
-                    projectNameFilters.add(projectName);
-                } else {
-                    projectNameFilters.remove(projectName);
-                }
-                projectTextInput.setText(projectName);
-                refreshTodos();
-            });
-            return button;
-        }).collect(Collectors.toList()));
-
-        // reset previous filter - only keep the ones which still exist
-        List<String> tempProjectNameFilters = projectNameFilters.stream()
-                .filter(projectFilter -> projectNames.stream()
-                        .anyMatch(
-                                projectName -> projectFilter.equals(
-                                        projectName)))
-                .collect(Collectors.toList());
-        projectNameFilters.clear();
-        projectNameFilters.addAll(tempProjectNameFilters);
+        final VBox filterVBox;
+        try {
+            filterVBox = loader.load();
+        } catch (IOException e) {
+            LOG.error("Could not load filters layout", e);
+            throw new RuntimeException(e);
+        }
+        this.filterVBox.getChildren().addAll(filterVBox.getChildren()); // TODO losses original vbox attributes
+        FilterController filterController = loader.getController();
     }
 
     private void refreshTodos() {
         ObservableList<Node> children = workItemVBox.getChildren();
         children.clear();
 
-        ObservableList<WorkItem> workItems = model.getWorkItems();
-
-        Stream<WorkItem> filteredWorkItemStream = workItems.stream();
-        if (!timeFilters.isEmpty())
-            filteredWorkItemStream = filteredWorkItemStream.filter(timeFilters.stream().reduce(x -> false, Predicate::or));
-        if (!projectNameFilters.isEmpty())
-            filteredWorkItemStream = filteredWorkItemStream.filter(
-                    workItem -> projectNameFilters.stream().anyMatch(filter -> workItem.getProject().equals(filter)));
-        filteredWorkItemStream = filteredWorkItemStream.filter(
-                workItem -> alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished());
-
-        Stream<WorkItem> sortedFilteredWorkItemStream = filteredWorkItemStream;
+        Stream<WorkItem> sortedFilteredWorkItemStream = model.getWorkFilteredItems().stream();
         Comparator comparator = null;
         if (sortingCriteriaList.size() > 0) {
-            comparator = Comparator.comparing(ViewController.orderBy(sortingCriteriaList.get(0)));
+            comparator = Comparator.comparing(MainWindowController.orderBy(sortingCriteriaList.get(0)));
         }
         for (int i = 1; i < sortingCriteriaList.size(); i++) {
             SortingCriteria sortingCriteria = sortingCriteriaList.get(i);
-            comparator = comparator.thenComparing(ViewController.orderBy(sortingCriteria));
+            comparator = comparator.thenComparing(MainWindowController.orderBy(sortingCriteria));
         }
 
         sortedFilteredWorkItemStream =
@@ -285,6 +234,7 @@ public class ViewController {
             Node todoNode = createTodoNode(workItem);
             children.add(todoNode);
         }
+
         if (mainStage != null)
             mainStage.sizeToScene();
     }
@@ -320,7 +270,8 @@ public class ViewController {
         for (TodoPart todoPart : todoParts) {
             Label label = new Label(todoPart.getStringValue());
             if (todoPart.isLink()) {
-                label.setOnMouseClicked((actionEvent) -> BrowserHelper.openURL(todoPart.getStringValue()));
+                label.setOnMouseClicked((actionEvent) -> BrowserHelper.openURL(todoPart.getLink()));
+                label.setTooltip(new Tooltip(todoPart.getLink()));
                 Color normalLinkColor = Color.BLUE;
                 label.setTextFill(normalLinkColor);
                 label.setUnderline(true);
@@ -386,8 +337,7 @@ public class ViewController {
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         GridPane grid;
-        final FXMLLoader loader = new FXMLLoader(Resources.getResource(Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT));
-
+        final FXMLLoader loader = FxmlLayout.createLoaderFor(Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT);
         try {
             grid = loader.load();
         } catch (final IOException e) {
@@ -445,10 +395,4 @@ public class ViewController {
         Priority,
         DueDate;
     }
-
-    private class Delta {
-        double x;
-        double y;
-    }
-
 }

@@ -19,11 +19,11 @@ package de.doubleslash.keeptask;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
 
+import de.doubleslash.keeptask.common.FxmlLayout;
 import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.common.Resources.RESOURCE;
-import de.doubleslash.keeptask.common.WorkItem;
+import de.doubleslash.keeptask.view.MainWindowController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -39,8 +39,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import de.doubleslash.keeptask.common.FontProvider;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
-import de.doubleslash.keeptask.view.ViewController;
-import de.doubleslash.keeptask.viewpopup.GlobalScreenListener;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -63,9 +61,7 @@ public class App extends Application {
 
     private Controller controller;
 
-    private ViewController viewController;
-
-    private GlobalScreenListener globalScreenListener;
+    private MainWindowController viewController;
 
     @Override
     public void init() throws Exception {
@@ -77,9 +73,9 @@ public class App extends Application {
         ApplicationProperties applicationProperties = springContext.getBean(ApplicationProperties.class);
         LOG.info("KeepTask Version: '{}'.", applicationProperties.getBuildVersion());
         LOG.info("KeepTask Build Timestamp: '{}'.", applicationProperties.getBuildTimestamp());
-        LOG.info("KeepTask Git Infos: id '{}', branch '{}', time '{}', dirty '{}'.",
-                applicationProperties.getGitCommitId(), applicationProperties.getGitBranch(),
-                applicationProperties.getGitCommitTime(), applicationProperties.getGitDirty());
+        LOG.info("KeepTask Git Infos: id '{}', branch '{}', time '{}', dirty '{}'.", applicationProperties.getGitCommitId(), applicationProperties.getGitBranch(), applicationProperties.getGitCommitTime(), applicationProperties.getGitDirty());
+
+        FxmlLayout.setContext(springContext);
 
         model = springContext.getBean(Model.class);
         controller = springContext.getBean(Controller.class);
@@ -93,73 +89,76 @@ public class App extends Application {
             LOG.info("UI successfully initialised.");
         } catch (final Exception e) {
             LOG.error("There was an error while initialising the UI", e);
-
-            final Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Could not start application");
-            alert.setContentText("Please send the error with your logs folder to a developer");
-
-            final StringWriter sw = new StringWriter();
-            final PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            final String exceptionText = sw.toString();
-
-            final Label label = new Label("The exception stacktrace was:");
-
-            final TextArea textArea = new TextArea(exceptionText);
-            textArea.setEditable(false);
-            textArea.setWrapText(true);
-
-            textArea.setMaxWidth(Double.MAX_VALUE);
-            textArea.setMaxHeight(Double.MAX_VALUE);
-            GridPane.setVgrow(textArea, Priority.ALWAYS);
-            GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-            final GridPane expContent = new GridPane();
-            expContent.setMaxWidth(Double.MAX_VALUE);
-            expContent.add(label, 0, 0);
-            expContent.add(textArea, 0, 1);
-
-            alert.getDialogPane().setExpandableContent(expContent);
-            alert.showAndWait();
-            System.exit(1);
+            showExceptionAndExit(e);
         }
     }
+
 
     private void initialiseApplication(final Stage primaryStage) throws Exception {
         FontProvider.loadFonts();
 
-        List<WorkItem> workItems = model.getWorkItemRepository().findAll();
-        model.setWorkItems(workItems);
+        controller.init();
 
-        initialiseUI(primaryStage);
+        initialiseAndShowUI(primaryStage);
     }
 
-    private void initialiseUI(final Stage primaryStage) throws IOException {
+    private void initialiseAndShowUI(final Stage primaryStage) throws IOException {
         LOG.debug("Initialising main UI.");
-
-        // Load root layout from fxml file.
-        final FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(Resources.getResource(RESOURCE.FXML_VIEW_LAYOUT));
-        loader.setControllerFactory(springContext::getBean);
-        final Pane mainPane = loader.load();
+        primaryStage.setTitle("KeepTask");
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.getIcons().add(new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString()));
-        // Show the scene containing the root layout.
-        final Scene mainScene = new Scene(mainPane, Color.TRANSPARENT);
-
-
-        primaryStage.setTitle("KeepTask");
-        primaryStage.setScene(mainScene);
         primaryStage.setAlwaysOnTop(true);
         primaryStage.setResizable(false);
-
         primaryStage.setOnCloseRequest(windowEvent -> LOG.info("On close request"));
 
-        primaryStage.show();
+        final FXMLLoader loader = FxmlLayout.createLoaderFor(RESOURCE.FXML_VIEW_LAYOUT);
+
+        final Pane mainPane = loader.load();
         viewController = loader.getController();
         viewController.setMainStage(primaryStage);
 
+        final Scene mainScene = new Scene(mainPane, Color.TRANSPARENT);
+        primaryStage.setScene(mainScene);
+
+        primaryStage.show();
+    }
+
+    private static void showExceptionAndExit(Exception e) {
+        final Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Could not start application");
+        alert.setContentText("Please send the error with your logs folder to a developer");
+
+        final String exceptionText = getExceptionAsString(e);
+
+        final Label label = new Label("The exception stacktrace was:");
+
+        final TextArea textArea = new TextArea(exceptionText);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        final GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        alert.getDialogPane().setExpandableContent(expContent);
+
+        alert.showAndWait();
+        System.exit(1);
+    }
+
+    private static String getExceptionAsString(Exception e) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        final String exceptionText = sw.toString();
+        return exceptionText;
     }
 
     @Override

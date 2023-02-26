@@ -1,6 +1,6 @@
 package de.doubleslash.keeptask.view;
 
-import de.doubleslash.keeptask.common.WorkItem;
+import de.doubleslash.keeptask.model.WorkItem;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
