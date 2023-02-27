@@ -7,7 +7,9 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EditWorkItemController {
 
     private static final Logger LOG = LoggerFactory.getLogger(EditWorkItemController.class);
