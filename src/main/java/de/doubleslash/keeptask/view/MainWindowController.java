@@ -19,7 +19,6 @@ package de.doubleslash.keeptask.view;
 import de.doubleslash.keeptask.common.*;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
-
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.TodoPart;
 import de.doubleslash.keeptask.model.WorkItem;
@@ -46,7 +45,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,7 +59,7 @@ public class MainWindowController {
 
     private final Model model;
     private final Controller controller;
-
+    SortedList<WorkItem> sortedWorkItems;
     private Point dragDelta = new Point(0, 0);
     private Stage mainStage;
     @FXML
@@ -67,10 +68,8 @@ public class MainWindowController {
     private Button minimizeButton;
     @FXML
     private Button closeButton;
-
     @FXML
     private VBox filterVBox;
-
     // TODO extract new ToDo-section into own controller
     @FXML
     private TextField prioTextInput;
@@ -82,19 +81,14 @@ public class MainWindowController {
     private DatePicker dueDatePicker;
     @FXML
     private Button addTodoButton;
-
     @FXML
     private HBox sortingCriteriaHBox;
     @FXML
     private ComboBox addSortingCriteriaCbx;
     private ObservableList<SortingCriteria> sortingCriteriaList = FXCollections.observableArrayList();
-
-
     // TODO extract TODO ListView to own controller
     @FXML
     private VBox workItemVBox;
-
-    SortedList<WorkItem> sortedWorkItems;
 
     @Autowired
     public MainWindowController(final Model model, final Controller controller) {
@@ -149,8 +143,7 @@ public class MainWindowController {
             if (dueDate != null) {
                 dueDateTime = dueDate.atStartOfDay();
             }
-            WorkItem newItem = new WorkItem(projectTextInput.getText(), prioTextInput.getText(), todoTextInput.getText(),
-                    LocalDateTime.now(), dueDateTime, null, false, "");
+            WorkItem newItem = new WorkItem(projectTextInput.getText(), prioTextInput.getText(), todoTextInput.getText(), LocalDateTime.now(), dueDateTime, null, false, "");
             controller.addWorkItem(newItem);
 
             todoTextInput.clear();
@@ -181,7 +174,7 @@ public class MainWindowController {
 
         addSortingCriteriaCbx.setItems(FXCollections.observableArrayList(SortingCriteria.values()));
         addSortingCriteriaCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue == null) return;
+            if (newValue == null) return;
 
             sortingCriteriaList.add((SortingCriteria) newValue);
             addSortingCriteriaCbx.getSelectionModel().clearSelection();
@@ -198,7 +191,7 @@ public class MainWindowController {
         sortingCriteriaList.add(SortingCriteria.valueOf(sortingCriteriaString));
     }
 
-     private void loadFiltersLayout() {
+    private void loadFiltersLayout() {
         final FXMLLoader loader = FxmlLayout.createLoaderFor(Resources.RESOURCE.FXML_FILTER_LAYOUT);
 
         final VBox filterVBox;
@@ -226,8 +219,7 @@ public class MainWindowController {
             comparator = comparator.thenComparing(MainWindowController.orderBy(sortingCriteria));
         }
 
-        sortedFilteredWorkItemStream =
-                comparator == null ? sortedFilteredWorkItemStream : sortedFilteredWorkItemStream.sorted(comparator);
+        sortedFilteredWorkItemStream = comparator == null ? sortedFilteredWorkItemStream : sortedFilteredWorkItemStream.sorted(comparator);
         List<WorkItem> filteredItems = sortedFilteredWorkItemStream.collect(Collectors.toList());
 
         for (WorkItem workItem : filteredItems) {
@@ -235,8 +227,7 @@ public class MainWindowController {
             children.add(todoNode);
         }
 
-        if (mainStage != null)
-            mainStage.sizeToScene();
+        if (mainStage != null) mainStage.sizeToScene();
     }
 
     private Node createTodoNode(WorkItem workItem) {
@@ -254,12 +245,9 @@ public class MainWindowController {
         hbox2.disableProperty().bind(completedCheckBox.selectedProperty());
         ObservableList<Node> children1 = hbox2.getChildren();
         Label prioLabel = new Label(workItem.getPriority());
-        if (workItem.getPriority().equalsIgnoreCase("High"))
-            prioLabel.setTextFill(Color.RED);
-        if (workItem.getPriority().equalsIgnoreCase("Medium"))
-            prioLabel.setTextFill(Color.ORANGE);
-        if (!workItem.getPriority().isEmpty())
-            children1.add(prioLabel);
+        if (workItem.getPriority().equalsIgnoreCase("High")) prioLabel.setTextFill(Color.RED);
+        if (workItem.getPriority().equalsIgnoreCase("Medium")) prioLabel.setTextFill(Color.ORANGE);
+        if (!workItem.getPriority().isEmpty()) children1.add(prioLabel);
 
         Label projectLabel = new Label(workItem.getProject());
         children1.add(projectLabel);
@@ -283,12 +271,10 @@ public class MainWindowController {
         children1.add(todoHbox);
 
         Label dueDateTimeLabel = new Label("Due: " + workItem.getDueDateTime());
-        if (workItem.getDueDateTime() != null)
-            children1.add(dueDateTimeLabel);
+        if (workItem.getDueDateTime() != null) children1.add(dueDateTimeLabel);
 
         Label noteLabel = new Label("Note: " + workItem.getNote());
-        if (!workItem.getNote().isEmpty())
-            children1.add(noteLabel);
+        if (!workItem.getNote().isEmpty()) children1.add(noteLabel);
 
         Label completedDateTimeLabel = new Label("Completed: " + workItem.getCompletedDateTime());
         if (workItem.isFinished()) // TODO this is only working on rerender
@@ -296,16 +282,14 @@ public class MainWindowController {
 
         children.add(hbox2);
 
-        Button editButton = new Button("",
-                SvgNodeProvider.getSvgNodeWithScale(Resources.RESOURCE.SVG_PENCIL_ICON, 0.03, 0.03));
+        Button editButton = new Button("", SvgNodeProvider.getSvgNodeWithScale(Resources.RESOURCE.SVG_PENCIL_ICON, 0.03, 0.03));
         editButton.setMaxSize(20, 18);
         editButton.setMinSize(20, 18);
         editButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         children.add(editButton);
         editButton.setOnAction((actionEvent) -> editTodoClicked(workItem));
 
-        Button deleteButton = new Button("",
-                SvgNodeProvider.getSvgNodeWithScale(Resources.RESOURCE.SVG_TRASH_ICON, 0.03, 0.03));
+        Button deleteButton = new Button("", SvgNodeProvider.getSvgNodeWithScale(Resources.RESOURCE.SVG_TRASH_ICON, 0.03, 0.03));
         deleteButton.setMaxSize(20, 18);
         deleteButton.setMinSize(20, 18);
         deleteButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -341,8 +325,7 @@ public class MainWindowController {
         try {
             grid = loader.load();
         } catch (final IOException e) {
-            throw new FXMLLoaderException(
-                    String.format("Error while loading '%s'.", Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT), e);
+            throw new FXMLLoaderException(String.format("Error while loading '%s'.", Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT), e);
         }
         EditWorkItemController editWorkItemController = loader.getController();
         editWorkItemController.initializeWith(workItem);
@@ -365,8 +348,7 @@ public class MainWindowController {
 
     private void runUpdateMainBackgroundColor() {
         Color color = model.defaultBackgroundColor.get();
-        String style = StyleUtils.changeStyleAttribute(pane.getStyle(), "fx-background-color",
-                "rgba(" + ColorHelper.colorToCssRgba(color) + ")");
+        String style = StyleUtils.changeStyleAttribute(pane.getStyle(), "fx-background-color", "rgba(" + ColorHelper.colorToCssRgba(color) + ")");
         pane.setStyle(style);
     }
 
@@ -392,7 +374,6 @@ public class MainWindowController {
     }
 
     private enum SortingCriteria {
-        Priority,
-        DueDate;
+        Priority, DueDate;
     }
 }
