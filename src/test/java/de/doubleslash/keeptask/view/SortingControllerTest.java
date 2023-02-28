@@ -34,9 +34,9 @@ class SortingControllerTest {
     @Test
     void shouldSortWorkItemsCorrectlyByPriorityWhenSettingPriorityAsSortingCriteria() {
         List<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
-                new WorkItem("TEST", "High", "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
-                new WorkItem("TEST", "Medium", "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
-                new WorkItem("TEST", "Low", "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, "")
+                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
+                new WorkItem("TEST", WorkItem.Priority.Medium, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
+                new WorkItem("TEST", WorkItem.Priority.Low, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, "")
         ));
 
         // GIVEN

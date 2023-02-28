@@ -13,7 +13,7 @@ public class WorkItem {
     private long id;
 
     private String project;
-    private String priority;
+    private Priority priority;
     private String todo;
     private LocalDateTime createdDateTime;
     private LocalDateTime dueDateTime;
@@ -21,38 +21,11 @@ public class WorkItem {
     private boolean finished;
     private String note;
 
-    public void setProject(String project) {
-        this.project = project;
-    }
-
-    public void setTodo(String todo) {
-        this.todo = todo;
-    }
-
-    public void setCreatedDateTime(LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
-    }
-
-    public void setDueDateTime(LocalDateTime dueDateTime) {
-        this.dueDateTime = dueDateTime;
-    }
-
-    public void setCompletedDateTime(LocalDateTime completedDateTime) {
-        this.completedDateTime = completedDateTime;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public WorkItem(){
+    public WorkItem() {
         // needed for hibernate
     }
-    public WorkItem(String project, String priority, String todo, LocalDateTime createdDateTime, LocalDateTime dueDateTime, LocalDateTime completedDateTime, boolean finished, String note) {
+
+    public WorkItem(String project, Priority priority, String todo, LocalDateTime createdDateTime, LocalDateTime dueDateTime, LocalDateTime completedDateTime, boolean finished, String note) {
         this.project = project;
         this.priority = priority;
         this.todo = todo;
@@ -67,42 +40,75 @@ public class WorkItem {
         return id;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public String getProject() {
         return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 
     public String getTodo() {
         return todo;
     }
 
+    public void setTodo(String todo) {
+        this.todo = todo;
+    }
+
     public LocalDateTime getCreatedDateTime() {
         return createdDateTime;
+    }
+
+    public void setCreatedDateTime(LocalDateTime createdDateTime) {
+        this.createdDateTime = createdDateTime;
     }
 
     public LocalDateTime getDueDateTime() {
         return dueDateTime;
     }
 
+    public void setDueDateTime(LocalDateTime dueDateTime) {
+        this.dueDateTime = dueDateTime;
+    }
+
     public LocalDateTime getCompletedDateTime() {
         return completedDateTime;
+    }
+
+    public void setCompletedDateTime(LocalDateTime completedDateTime) {
+        this.completedDateTime = completedDateTime;
     }
 
     public boolean isFinished() {
         return finished;
     }
 
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
     public String getNote() {
         return note;
     }
-    public String getPriority() {
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public enum Priority {
+        High, Medium, Low
     }
 }

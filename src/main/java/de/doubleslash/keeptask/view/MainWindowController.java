@@ -118,7 +118,7 @@ public class MainWindowController {
             if (dueDate != null) {
                 dueDateTime = dueDate.atStartOfDay();
             }
-            WorkItem newItem = new WorkItem(projectTextInput.getText(), prioTextInput.getText(), todoTextInput.getText(), LocalDateTime.now(), dueDateTime, null, false, "");
+            WorkItem newItem = new WorkItem(projectTextInput.getText(), WorkItem.Priority.valueOf(prioTextInput.getText()), todoTextInput.getText(), LocalDateTime.now(), dueDateTime, null, false, "");
             controller.addWorkItem(newItem);
 
             todoTextInput.clear();
@@ -200,10 +200,10 @@ public class MainWindowController {
         hbox2.setSpacing(10);
         hbox2.disableProperty().bind(completedCheckBox.selectedProperty());
         ObservableList<Node> children1 = hbox2.getChildren();
-        Label prioLabel = new Label(workItem.getPriority());
-        if (workItem.getPriority().equalsIgnoreCase("High")) prioLabel.setTextFill(Color.RED);
-        if (workItem.getPriority().equalsIgnoreCase("Medium")) prioLabel.setTextFill(Color.ORANGE);
-        if (!workItem.getPriority().isEmpty()) children1.add(prioLabel);
+        Label prioLabel = new Label(workItem.getPriority().toString());
+        if (workItem.getPriority() == WorkItem.Priority.High) prioLabel.setTextFill(Color.RED);
+        if (workItem.getPriority() == WorkItem.Priority.Medium) prioLabel.setTextFill(Color.ORANGE);
+        if (!workItem.getPriority().toString().isEmpty()) children1.add(prioLabel);
 
         Label projectLabel = new Label(workItem.getProject());
         children1.add(projectLabel);
