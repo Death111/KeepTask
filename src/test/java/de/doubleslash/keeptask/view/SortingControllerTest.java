@@ -77,4 +77,34 @@ class SortingControllerTest {
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
     }
+
+    @Test
+    void shouldSortWorkItemsCorrectlyByPriorityAndDueDateWhenFirstSortingByPriorityAndThenByDueDate() {
+        List<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
+                new WorkItemBuilder().setPriority(WorkItem.Priority.High).setDueDateTime(LocalDateTime.now().plusDays(1)).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.High).setDueDateTime(LocalDateTime.now().plusDays(2)).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).setDueDateTime(LocalDateTime.now().plusDays(1)).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).setDueDateTime(LocalDateTime.now().plusDays(2)).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).setDueDateTime(LocalDateTime.now().plusDays(1)).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).setDueDateTime(LocalDateTime.now().plusDays(2)).createWorkItem()
+        ));
+
+        // GIVEN
+        ObservableList<WorkItem> workItemsToBeSorted = FXCollections.observableArrayList(
+                expectedSortedWorkItems.get(5),
+                expectedSortedWorkItems.get(4),
+                expectedSortedWorkItems.get(3),
+                expectedSortedWorkItems.get(2),
+                expectedSortedWorkItems.get(1),
+                expectedSortedWorkItems.get(0)
+        );
+        sortingController.setWorkItemsToSort(workItemsToBeSorted);
+
+        // WHEN
+        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.Priority);
+        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.DueDate);
+
+        // THEN
+        assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
+    }
 }
