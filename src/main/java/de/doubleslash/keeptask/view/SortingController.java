@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 @Component
 public class SortingController {
-    private final ObservableList<SortingCriteria> sortingCriteriaList = FXCollections.observableArrayList();
+    final ObservableList<SortingCriteria> sortingCriteriaList = FXCollections.observableArrayList();
     private SortedList<WorkItem> sortedWorkItems;
     @FXML
     private HBox sortingCriteriaHBox;
@@ -95,7 +95,7 @@ public class SortingController {
         return sortedWorkItems;
     }
 
-    private enum SortingCriteria {
+    enum SortingCriteria {
         Priority, DueDate;
     }
 }

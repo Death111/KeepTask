@@ -13,7 +13,7 @@ public class WorkItem {
     private long id;
 
     private String project;
-    private  String priority;
+    private String priority;
     private String todo;
     private LocalDateTime createdDateTime;
     private LocalDateTime dueDateTime;
