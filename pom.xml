@@ -199,6 +199,20 @@
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M9</version>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- Execute JavaFX tests headless -->
+            <testfx.robot>glass</testfx.robot>
+            <glass.platform>Monocle</glass.platform>
+            <monocle.platform>Headless</monocle.platform>
+            <testfx.headless>true</testfx.headless>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>

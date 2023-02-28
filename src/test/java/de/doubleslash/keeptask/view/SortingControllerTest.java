@@ -26,10 +26,6 @@ class SortingControllerTest {
 
     @Start
     private void start(Stage stage) throws IOException {
-        System.setProperty("testfx.robot", "glass");
-        System.setProperty("glass.platform", "Monocle");
-        System.setProperty("monocle.platform", "Headless");
-        System.setProperty("testfx.headless", "true");
         final FXMLLoader loader = new FXMLLoader();
         loader.setLocation(Resources.getResource(Resources.RESOURCE.FXML_SORTING_LAYOUT));
         loader.load();
