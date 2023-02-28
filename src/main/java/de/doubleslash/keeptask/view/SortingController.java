@@ -71,11 +71,11 @@ public class SortingController {
     private Comparator<WorkItem> getSortingComparator() {
         Comparator comparator = null;
         if (sortingCriteriaList.size() > 0) {
-            comparator = Comparator.comparing(orderBy(sortingCriteriaList.get(0)));
+            comparator = Comparator.comparing(orderBy(sortingCriteriaList.get(0)), Comparator.nullsLast(Comparator.naturalOrder()));
         }
         for (int i = 1; i < sortingCriteriaList.size(); i++) {
             SortingCriteria sortingCriteria = sortingCriteriaList.get(i);
-            comparator = comparator.thenComparing(orderBy(sortingCriteria));
+            comparator = comparator.thenComparing(orderBy(sortingCriteria), Comparator.nullsLast(Comparator.naturalOrder()));
         }
         return comparator;
     }
