@@ -53,4 +53,27 @@ class SortingControllerTest {
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
     }
+
+    @Test
+    void shouldSortWorkItemsCorrectlyByDueDateWhenSettingDueDateAsSortingCriteria() {
+        List<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
+                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
+                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(2), null, false, ""),
+                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(3), null, false, "")
+        ));
+
+        // GIVEN
+        ObservableList<WorkItem> workItemsToBeSorted = FXCollections.observableArrayList(
+                expectedSortedWorkItems.get(2),
+                expectedSortedWorkItems.get(1),
+                expectedSortedWorkItems.get(0)
+        );
+        sortingController.setWorkItemsToSort(workItemsToBeSorted);
+
+        // WHEN
+        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.DueDate);
+
+        // THEN
+        assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
+    }
 }
