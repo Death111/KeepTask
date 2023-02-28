@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: rgba(54,143,179,0.01); -fx-background-radius: 10 10 10 10; -fx-border-radius: 10 10 10 10; -fx-border-color: grey; -fx-border-style: solid; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="de.doubleslash.keeptask.view.MainWindowController">
+   <children>
+      <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
+         <children>
+            <HBox alignment="TOP_RIGHT">
+               <children>
+                  <Button fx:id="minimizeButton" mnemonicParsing="false" text="_" />
+                  <Button fx:id="closeButton" mnemonicParsing="false" text="x" />
+               </children>
+            </HBox>
+            <VBox fx:id="filterVBox" spacing="5.0" />
+            <VBox>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <children>
+                        <Label text="New:" />
+                        <TextField fx:id="prioTextInput" layoutX="10.0" layoutY="10.0" promptText="Prio" />
+                        <TextField fx:id="projectTextInput" promptText="Project" />
+                        <TextField fx:id="todoTextInput" promptText="todo" />
+                        <DatePicker fx:id="dueDatePicker" promptText="Due" />
+                        <Button fx:id="addTodoButton" mnemonicParsing="false" text="Add" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox fx:id="sortingVBox" layoutX="10.0" layoutY="10.0" />
+            <VBox fx:id="workItemVBox" />
+         </children>
+      </VBox>
+   </children>
+</Pane>

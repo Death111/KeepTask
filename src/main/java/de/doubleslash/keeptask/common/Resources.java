@@ -24,6 +24,10 @@ public class Resources {
         throw new IllegalStateException("Utility class");
     }
 
+    public static URL getResource(final RESOURCE resource) {
+        return Resources.class.getResource(resource.getResourceLocation());
+    }
+
     public enum RESOURCE {
         /**
          * FONTS
@@ -35,16 +39,16 @@ public class Resources {
          * LAYOUTS
          **/
         // main
-        FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
+        FXML_VIEW_LAYOUT("/layouts/MainWindowLayout.fxml"),
         FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
         FXML_FILTER_LAYOUT("/layouts/FiltersLayout.fxml"),
+        FXML_SORTING_LAYOUT("/layouts/SortingLayout.fxml"),
 
         SVG_TRASH_ICON("/svgs/trash-can.svg"),
 
         SVG_PENCIL_ICON("/svgs/pencil.svg"),
 
-        ICON_MAIN("/icons/icon.png")
-        ;
+        ICON_MAIN("/icons/icon.png");
 
         String resourceLocation;
 
@@ -55,9 +59,5 @@ public class Resources {
         public String getResourceLocation() {
             return resourceLocation;
         }
-    }
-
-    public static URL getResource(final RESOURCE resource) {
-        return Resources.class.getResource(resource.getResourceLocation());
     }
 }

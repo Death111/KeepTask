@@ -22,10 +22,8 @@ import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.TodoPart;
 import de.doubleslash.keeptask.model.WorkItem;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -45,12 +43,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Component
@@ -59,7 +53,8 @@ public class MainWindowController {
 
     private final Model model;
     private final Controller controller;
-    SortedList<WorkItem> sortedWorkItems;
+    private FilterController filterController;
+    private SortingController sortingController;
     private Point dragDelta = new Point(0, 0);
     private Stage mainStage;
     @FXML
@@ -82,10 +77,7 @@ public class MainWindowController {
     @FXML
     private Button addTodoButton;
     @FXML
-    private HBox sortingCriteriaHBox;
-    @FXML
-    private ComboBox addSortingCriteriaCbx;
-    private ObservableList<SortingCriteria> sortingCriteriaList = FXCollections.observableArrayList();
+    private VBox sortingVBox;
     // TODO extract TODO ListView to own controller
     @FXML
     private VBox workItemVBox;
@@ -96,27 +88,10 @@ public class MainWindowController {
         this.controller = controller;
     }
 
-    public static Function<WorkItem, ? extends Comparable> orderBy(SortingCriteria criteria) {
-        switch (criteria) {
-            case Priority:
-                return WorkItem::getPriority;
-            case DueDate:
-                return WorkItem::getDueDateTime;
-            default:
-                throw new IllegalArgumentException("" + criteria);
-        }
-    }
-
     @FXML
     private void initialize() {
-        // TODO make sorting configurable
-        sortedWorkItems = new SortedList<>(model.getWorkFilteredItems());
-        Comparator<WorkItem> comparing = Comparator.comparing(workItem -> workItem.getDueDateTime() != null ? workItem.getDueDateTime() : LocalDateTime.MIN);
-        comparing = comparing.reversed();
-        sortedWorkItems.setComparator(comparing);
-
-
         loadFiltersLayout();
+        loadSortingLayout();
 
         closeButton.setOnAction(ae -> openConfirmationWindow());
         minimizeButton.setOnAction(ae -> mainStage.setIconified(true));
@@ -150,34 +125,10 @@ public class MainWindowController {
             dueDatePicker.setValue(null);
         });
 
-        model.getWorkFilteredItems().addListener((ListChangeListener<? super WorkItem>) change -> {
-            refreshTodos();
-        });
-
-        sortingCriteriaList.addListener((ListChangeListener<? super SortingCriteria>) change -> {
+        model.getWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
             if (!change.next()) return;
 
-            Button sortingCriteriaButton = new Button();
-            String sortingCriteria = change.getAddedSubList().get(0).toString();
-            sortingCriteriaButton.setText(sortingCriteria);
-            Tooltip tooltip = new Tooltip();
-            tooltip.setText("Click to remove " + sortingCriteria + " sorting criteria");
-            sortingCriteriaButton.setTooltip(tooltip);
-            sortingCriteriaButton.setOnAction(event -> {
-                sortingCriteriaList.remove(SortingCriteria.valueOf(sortingCriteria));
-                sortingCriteriaHBox.getChildren().remove(sortingCriteriaButton);
-                refreshTodos();
-            });
-            sortingCriteriaHBox.getChildren().add(sortingCriteriaHBox.getChildren().size() - 1, sortingCriteriaButton);
             refreshTodos();
-        });
-
-        addSortingCriteriaCbx.setItems(FXCollections.observableArrayList(SortingCriteria.values()));
-        addSortingCriteriaCbx.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null) return;
-
-            sortingCriteriaList.add((SortingCriteria) newValue);
-            addSortingCriteriaCbx.getSelectionModel().clearSelection();
         });
 
         model.latestSelectedProjectProperty().addListener((obs, old, newValue) -> {
@@ -185,10 +136,6 @@ public class MainWindowController {
         });
 
         refreshTodos();
-    }
-
-    private void addSortingCriteria(String sortingCriteriaString) {
-        sortingCriteriaList.add(SortingCriteria.valueOf(sortingCriteriaString));
     }
 
     private void loadFiltersLayout() {
@@ -202,27 +149,36 @@ public class MainWindowController {
             throw new RuntimeException(e);
         }
         this.filterVBox.getChildren().addAll(filterVBox.getChildren()); // TODO losses original vbox attributes
-        FilterController filterController = loader.getController();
+        filterController = loader.getController();
+    }
+
+    private void loadSortingLayout() {
+        final FXMLLoader loader = FxmlLayout.createLoaderFor(Resources.RESOURCE.FXML_SORTING_LAYOUT);
+
+        final VBox sortingVBox;
+        try {
+            sortingVBox = loader.load();
+        } catch (IOException e) {
+            LOG.error("Could not load sorting layout", e);
+            throw new RuntimeException(e);
+        }
+        this.sortingVBox.getChildren().addAll(sortingVBox.getChildren());
+        sortingController = loader.getController();
+        sortingController.setWorkItemsToSort(filterController.getFilteredWorkItems());
+        sortingController.getSortedWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
+            if (!change.next()) return;
+
+            refreshTodos();
+        });
     }
 
     private void refreshTodos() {
         ObservableList<Node> children = workItemVBox.getChildren();
         children.clear();
 
-        Stream<WorkItem> sortedFilteredWorkItemStream = model.getWorkFilteredItems().stream();
-        Comparator comparator = null;
-        if (sortingCriteriaList.size() > 0) {
-            comparator = Comparator.comparing(MainWindowController.orderBy(sortingCriteriaList.get(0)));
-        }
-        for (int i = 1; i < sortingCriteriaList.size(); i++) {
-            SortingCriteria sortingCriteria = sortingCriteriaList.get(i);
-            comparator = comparator.thenComparing(MainWindowController.orderBy(sortingCriteria));
-        }
+        List<WorkItem> sortedFilteredItems = sortingController.getSortedWorkItems();
 
-        sortedFilteredWorkItemStream = comparator == null ? sortedFilteredWorkItemStream : sortedFilteredWorkItemStream.sorted(comparator);
-        List<WorkItem> filteredItems = sortedFilteredWorkItemStream.collect(Collectors.toList());
-
-        for (WorkItem workItem : filteredItems) {
+        for (WorkItem workItem : sortedFilteredItems) {
             Node todoNode = createTodoNode(workItem);
             children.add(todoNode);
         }
@@ -371,9 +327,5 @@ public class MainWindowController {
     public void setMainStage(Stage mainStage) {
         this.mainStage = mainStage;
         mainStage.sizeToScene();
-    }
-
-    private enum SortingCriteria {
-        Priority, DueDate;
     }
 }

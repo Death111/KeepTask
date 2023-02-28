@@ -4,6 +4,7 @@ import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.WorkItem;
 import javafx.collections.ListChangeListener;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,35 +21,28 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class FilterController {
 
+    private final Model model;
+    private final Controller controller;
+    private final List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
+    private final List<String> projectNameFilters = new ArrayList<>();
     @FXML
     private TextField searchTextInput;
-
     @FXML
     private ToggleButton todayToggleButton;
-
     @FXML
     private ToggleButton tomorrowToggleButton;
-
     @FXML
     private ToggleButton expiredToggleButton;
-
     @FXML
     private CheckBox alsoCompletedCheckbox;
-
     @FXML
     private HBox projectFilterHbox;
 
-    private final Model model;
-    private final Controller controller;
-
-    private final List<Predicate<WorkItem>> timeFilters = new ArrayList<>();
-    private final List<String> projectNameFilters = new ArrayList<>();
-
+    private FilteredList<WorkItem> filteredWorkItems;
 
     @Autowired
     public FilterController(final Model model, final Controller controller) {
@@ -56,8 +50,14 @@ public class FilterController {
         this.controller = controller;
     }
 
+    public FilteredList<WorkItem> getFilteredWorkItems() {
+        return filteredWorkItems;
+    }
+
     @FXML
     private void initialize() {
+        filteredWorkItems = new FilteredList<>(model.getWorkItems());
+
         model.getWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
             updateProjectFilterButtons();
         });
@@ -124,8 +124,9 @@ public class FilterController {
 
     private void updateFilters() {
         Predicate<WorkItem> filterPredicate = generateFilterPredicate();
-        controller.setFilterPredicate(filterPredicate);
+        filteredWorkItems.setPredicate(filterPredicate);
     }
+
 
     private Predicate<WorkItem> generateFilterPredicate() {
         Predicate<WorkItem> filterPredicate = (workItem) -> {
