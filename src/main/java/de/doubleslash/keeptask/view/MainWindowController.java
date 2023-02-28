@@ -22,6 +22,7 @@ import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.TodoPart;
 import de.doubleslash.keeptask.model.WorkItem;
+import de.doubleslash.keeptask.model.WorkItemBuilder;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -118,7 +119,7 @@ public class MainWindowController {
             if (dueDate != null) {
                 dueDateTime = dueDate.atStartOfDay();
             }
-            WorkItem newItem = new WorkItem(projectTextInput.getText(), WorkItem.Priority.valueOf(prioTextInput.getText()), todoTextInput.getText(), LocalDateTime.now(), dueDateTime, null, false, "");
+            WorkItem newItem = new WorkItemBuilder().setProject(projectTextInput.getText()).setPriority(WorkItem.Priority.valueOf(prioTextInput.getText())).setTodo(todoTextInput.getText()).setCreatedDateTime(LocalDateTime.now()).setDueDateTime(dueDateTime).setCompletedDateTime(null).setFinished(false).setNote("").createWorkItem();
             controller.addWorkItem(newItem);
 
             todoTextInput.clear();

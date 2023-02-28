@@ -37,7 +37,6 @@ public class SortingController {
 
     @FXML
     private void initialize() {
-//        sortedWorkItems = new SortedList<>(FXCollections.observableArrayList());
         sortingCriteriaList.addListener((ListChangeListener<? super SortingCriteria>) change -> {
             if (!change.next()) return;
 

@@ -3,6 +3,7 @@ package de.doubleslash.keeptask.view;
 
 import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.model.WorkItem;
+import de.doubleslash.keeptask.model.WorkItemBuilder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -34,9 +35,9 @@ class SortingControllerTest {
     @Test
     void shouldSortWorkItemsCorrectlyByPriorityWhenSettingPriorityAsSortingCriteria() {
         List<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
-                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
-                new WorkItem("TEST", WorkItem.Priority.Medium, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
-                new WorkItem("TEST", WorkItem.Priority.Low, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, "")
+                new WorkItemBuilder().setPriority(WorkItem.Priority.High).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).createWorkItem()
         ));
 
         // GIVEN
@@ -57,9 +58,9 @@ class SortingControllerTest {
     @Test
     void shouldSortWorkItemsCorrectlyByDueDateWhenSettingDueDateAsSortingCriteria() {
         List<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
-                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(1), null, false, ""),
-                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(2), null, false, ""),
-                new WorkItem("TEST", WorkItem.Priority.High, "todo", LocalDateTime.now(), LocalDateTime.now().plusDays(3), null, false, "")
+                new WorkItemBuilder().setDueDateTime(LocalDateTime.now().plusDays(1)).createWorkItem(),
+                new WorkItemBuilder().setDueDateTime(LocalDateTime.now().plusDays(2)).createWorkItem(),
+                new WorkItemBuilder().setDueDateTime(LocalDateTime.now().plusDays(3)).createWorkItem()
         ));
 
         // GIVEN
