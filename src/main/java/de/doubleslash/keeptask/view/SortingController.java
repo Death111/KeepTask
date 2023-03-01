@@ -35,6 +35,14 @@ public class SortingController {
         }
     }
 
+    HBox getSortingCriteriaHBox() {
+        return sortingCriteriaHBox;
+    }
+
+    ComboBox getAddSortingCriteriaCbx() {
+        return addSortingCriteriaCbx;
+    }
+
     @FXML
     private void initialize() {
         sortingCriteriaList.addListener((ListChangeListener<? super SortingCriteria>) change -> {

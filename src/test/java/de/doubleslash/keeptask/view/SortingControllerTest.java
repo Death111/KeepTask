@@ -7,6 +7,8 @@ import de.doubleslash.keeptask.model.WorkItemBuilder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -136,6 +139,29 @@ class SortingControllerTest {
         sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.DueDate);
 
         // THEN
+        assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
+    }
+
+    @Test
+    void shouldAddSortingCriteriaWhenSelectedViaComboBox() {
+        ArrayList<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
+                new WorkItemBuilder().setPriority(WorkItem.Priority.High).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).createWorkItem()
+        ));
+
+        // GIVEN
+        ObservableList<WorkItem> workItemsToBeSorted = FXCollections.observableArrayList(getArrayListReverted(expectedSortedWorkItems));
+        sortingController.setWorkItemsToSort(workItemsToBeSorted);
+
+        // WHEN
+        sortingController.getAddSortingCriteriaCbx().getSelectionModel().select(SortingController.SortingCriteria.Priority);
+
+        // THEN
+        List<Node> buttonsList = sortingController.getSortingCriteriaHBox().getChildren().stream().filter(node -> node instanceof Button).collect(Collectors.toList());
+        assertThat(buttonsList).hasSize(1);
+        Button button = (Button) buttonsList.get(0);
+        assertThat(SortingController.SortingCriteria.valueOf(button.getText())).isEqualTo(SortingController.SortingCriteria.Priority);
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
     }
 
