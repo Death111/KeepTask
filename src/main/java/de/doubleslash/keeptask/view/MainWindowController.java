@@ -24,6 +24,7 @@ import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.TodoPart;
 import de.doubleslash.keeptask.model.WorkItem;
 import de.doubleslash.keeptask.model.WorkItemBuilder;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -45,8 +46,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -69,7 +72,7 @@ public class MainWindowController {
     private VBox filterVBox;
     // TODO extract new ToDo-section into own controller
     @FXML
-    private TextField prioTextInput;
+    private ComboBox<String> prioComboBox;
     @FXML
     private TextField projectTextInput;
     @FXML
@@ -92,6 +95,7 @@ public class MainWindowController {
 
     @FXML
     private void initialize() {
+        prioComboBox.setItems(FXCollections.observableArrayList(Arrays.stream(WorkItem.Priority.values()).map(priority -> priority.toString()).collect(Collectors.toList())));
         loadFiltersLayout();
         loadSortingLayout();
 
@@ -120,7 +124,7 @@ public class MainWindowController {
             if (dueDate != null) {
                 dueDateTime = dueDate.atStartOfDay();
             }
-            WorkItem newItem = new WorkItemBuilder().setProject(projectTextInput.getText()).setPriority(WorkItem.Priority.valueOf(prioTextInput.getText())).setTodo(todoTextInput.getText()).setCreatedDateTime(LocalDateTime.now()).setDueDateTime(dueDateTime).setCompletedDateTime(null).setFinished(false).setNote("").createWorkItem();
+            WorkItem newItem = new WorkItemBuilder().setProject(projectTextInput.getText()).setPriority(WorkItem.Priority.valueOf(prioComboBox.getSelectionModel().getSelectedItem())).setTodo(todoTextInput.getText()).setCreatedDateTime(LocalDateTime.now()).setDueDateTime(dueDateTime).setCompletedDateTime(null).setFinished(false).setNote("").createWorkItem();
             controller.addWorkItem(newItem);
 
             todoTextInput.clear();

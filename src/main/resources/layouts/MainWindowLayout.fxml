@@ -19,7 +19,7 @@
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
                         <Label text="New:" />
-                        <TextField fx:id="prioTextInput" layoutX="10.0" layoutY="10.0" promptText="Prio" />
+                        <ComboBox fx:id="prioComboBox" prefWidth="150.0" promptText="Prio" />
                         <TextField fx:id="projectTextInput" promptText="Project" />
                         <TextField fx:id="todoTextInput" promptText="todo" />
                         <DatePicker fx:id="dueDatePicker" promptText="Due" />
