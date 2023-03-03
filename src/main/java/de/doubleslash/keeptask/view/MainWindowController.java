@@ -18,6 +18,7 @@ package de.doubleslash.keeptask.view;
 
 import de.doubleslash.keeptask.common.*;
 import de.doubleslash.keeptask.controller.Controller;
+import de.doubleslash.keeptask.controller.SortingController;
 import de.doubleslash.keeptask.exceptions.FXMLLoaderException;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.TodoPart;
@@ -164,7 +165,8 @@ public class MainWindowController {
             throw new RuntimeException(e);
         }
         this.sortingVBox.getChildren().addAll(sortingVBox.getChildren());
-        sortingController = loader.getController();
+        SortingViewController sortingViewController = loader.getController();
+        sortingController = sortingViewController.getSortingController();
         sortingController.setWorkItemsToSort(filterController.getFilteredWorkItems());
         sortingController.getSortedWorkItems().addListener((ListChangeListener<? super WorkItem>) change -> {
             if (!change.next()) return;

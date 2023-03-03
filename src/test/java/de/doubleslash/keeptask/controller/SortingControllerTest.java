@@ -1,39 +1,25 @@
-package de.doubleslash.keeptask.view;
+package de.doubleslash.keeptask.controller;
 
-
-import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.model.WorkItem;
 import de.doubleslash.keeptask.model.WorkItemBuilder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.stage.Stage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static de.doubleslash.keeptask.TestUtils.getArrayListReverted;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@ExtendWith(ApplicationExtension.class)
 class SortingControllerTest {
-    SortingController sortingController;
+    private SortingController sortingController;
 
-    @Start
-    private void start(Stage stage) throws IOException {
-        final FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(Resources.getResource(Resources.RESOURCE.FXML_SORTING_LAYOUT));
-        loader.load();
-        sortingController = loader.getController();
+    @BeforeEach
+    void setup() {
+        sortingController = new SortingController();
     }
 
     @Test
@@ -140,34 +126,5 @@ class SortingControllerTest {
 
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
-    }
-
-    @Test
-    void shouldAddSortingCriteriaWhenSelectedViaComboBox() {
-        ArrayList<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
-                new WorkItemBuilder().setPriority(WorkItem.Priority.High).createWorkItem(),
-                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).createWorkItem(),
-                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).createWorkItem()
-        ));
-
-        // GIVEN
-        ObservableList<WorkItem> workItemsToBeSorted = FXCollections.observableArrayList(getArrayListReverted(expectedSortedWorkItems));
-        sortingController.setWorkItemsToSort(workItemsToBeSorted);
-
-        // WHEN
-        sortingController.getAddSortingCriteriaCbx().getSelectionModel().select(SortingController.SortingCriteria.Priority);
-
-        // THEN
-        List<Node> buttonsList = sortingController.getSortingCriteriaHBox().getChildren().stream().filter(node -> node instanceof Button).collect(Collectors.toList());
-        assertThat(buttonsList).hasSize(1);
-        Button button = (Button) buttonsList.get(0);
-        assertThat(SortingController.SortingCriteria.valueOf(button.getText())).isEqualTo(SortingController.SortingCriteria.Priority);
-        assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
-    }
-
-    private ArrayList<WorkItem> getArrayListReverted(ArrayList<WorkItem> arrayListToRevert) {
-        ArrayList<WorkItem> revertedArrayList = (ArrayList<WorkItem>) arrayListToRevert.clone();
-        Collections.reverse(revertedArrayList);
-        return revertedArrayList;
     }
 }
