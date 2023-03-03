@@ -13,6 +13,8 @@ public class WorkItem {
     private long id;
 
     private String project;
+    
+    @Enumerated(EnumType.STRING)
     private Priority priority;
     private String todo;
     private LocalDateTime createdDateTime;
