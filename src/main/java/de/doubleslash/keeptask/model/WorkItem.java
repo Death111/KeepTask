@@ -13,7 +13,7 @@ public class WorkItem {
     private long id;
 
     private String project;
-    
+
     @Enumerated(EnumType.STRING)
     private Priority priority;
     private String todo;
@@ -111,6 +111,6 @@ public class WorkItem {
     }
 
     public enum Priority {
-        High, Medium, Low
+        Low, Medium, High
     }
 }

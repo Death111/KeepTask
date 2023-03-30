@@ -1,5 +1,9 @@
 package de.doubleslash.keeptask.controller;
 
+import de.doubleslash.keeptask.model.Sorting.DueDate;
+import de.doubleslash.keeptask.model.Sorting.Priority;
+import de.doubleslash.keeptask.model.Sorting.SortingCriteria;
+import de.doubleslash.keeptask.model.Sorting.SortingDirection;
 import de.doubleslash.keeptask.model.WorkItem;
 import de.doubleslash.keeptask.model.WorkItemBuilder;
 import javafx.collections.FXCollections;
@@ -23,7 +27,7 @@ class SortingControllerTest {
     }
 
     @Test
-    void shouldSortWorkItemsCorrectlyByPriorityWhenSettingPriorityAsSortingCriteria() {
+    void shouldSortWorkItemsDescendingByPriorityByDefaultWhenSettingPriorityAsSortingCriteria() {
         ArrayList<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
                 new WorkItemBuilder().setPriority(WorkItem.Priority.High).createWorkItem(),
                 new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).createWorkItem(),
@@ -35,7 +39,7 @@ class SortingControllerTest {
         sortingController.setWorkItemsToSort(workItemsToBeSorted);
 
         // WHEN
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.Priority);
+        sortingController.selectedSortingCriteriaList.add(new Priority());
 
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
@@ -54,7 +58,7 @@ class SortingControllerTest {
         sortingController.setWorkItemsToSort(workItemsToBeSorted);
 
         // WHEN
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.DueDate);
+        sortingController.selectedSortingCriteriaList.add(new DueDate());
 
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
@@ -73,7 +77,7 @@ class SortingControllerTest {
         sortingController.setWorkItemsToSort(workItemsToBeSorted);
 
         // WHEN
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.Priority);
+        sortingController.selectedSortingCriteriaList.add(new Priority());
 
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
@@ -95,8 +99,8 @@ class SortingControllerTest {
         sortingController.setWorkItemsToSort(workItemsToBeSorted);
 
         // WHEN
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.Priority);
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.DueDate);
+        sortingController.selectedSortingCriteriaList.add(new Priority());
+        sortingController.selectedSortingCriteriaList.add(new DueDate());
 
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
@@ -121,8 +125,48 @@ class SortingControllerTest {
         sortingController.setWorkItemsToSort(workItemsToBeSorted);
 
         // WHEN
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.Priority);
-        sortingController.sortingCriteriaList.add(SortingController.SortingCriteria.DueDate);
+        sortingController.selectedSortingCriteriaList.add(new Priority());
+        sortingController.selectedSortingCriteriaList.add(new DueDate());
+
+        // THEN
+        assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
+    }
+
+    @Test
+    void shouldSortWorkItemsDescendingByPriorityWhenSettingPriorityAsSortingCriteriaAndDescendingOrder() {
+        ArrayList<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
+                new WorkItemBuilder().setPriority(WorkItem.Priority.High).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).createWorkItem()
+        ));
+
+        // GIVEN
+        ObservableList<WorkItem> workItemsToBeSorted = FXCollections.observableArrayList(getArrayListReverted(expectedSortedWorkItems));
+        sortingController.setWorkItemsToSort(workItemsToBeSorted);
+
+        // WHEN
+        sortingController.selectedSortingCriteriaList.add(new Priority());
+
+        // THEN
+        assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);
+    }
+
+    @Test
+    void shouldSortWorkItemsAscendingByPriorityWhenSettingPriorityAsSortingCriteriaAndAscendingOrder() {
+        ArrayList<WorkItem> expectedSortedWorkItems = new ArrayList<>(List.of(
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Low).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.Medium).createWorkItem(),
+                new WorkItemBuilder().setPriority(WorkItem.Priority.High).createWorkItem()
+        ));
+
+        // GIVEN
+        ObservableList<WorkItem> workItemsToBeSorted = FXCollections.observableArrayList(getArrayListReverted(expectedSortedWorkItems));
+        sortingController.setWorkItemsToSort(workItemsToBeSorted);
+
+        // WHEN
+        SortingCriteria priority = new Priority();
+        priority.setSortingDirection(SortingDirection.Ascending);
+        sortingController.selectedSortingCriteriaList.add(priority);
 
         // THEN
         assertThat(sortingController.getSortedWorkItems()).isEqualTo(expectedSortedWorkItems);

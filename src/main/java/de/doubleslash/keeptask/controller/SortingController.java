@@ -1,5 +1,9 @@
 package de.doubleslash.keeptask.controller;
 
+import de.doubleslash.keeptask.model.Sorting.DueDate;
+import de.doubleslash.keeptask.model.Sorting.Priority;
+import de.doubleslash.keeptask.model.Sorting.SortingCriteria;
+import de.doubleslash.keeptask.model.Sorting.SortingDirection;
 import de.doubleslash.keeptask.model.WorkItem;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -9,37 +13,53 @@ import javafx.collections.transformation.SortedList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SortingController {
-    final ObservableList<SortingCriteria> sortingCriteriaList = FXCollections.observableArrayList();
+    final ObservableList<SortingCriteria> selectedSortingCriteriaList = FXCollections.observableArrayList();
+    private List<SortingCriteria> possibleSortingCriteriaList;
     private SortedList<WorkItem> sortedWorkItems;
 
     public SortingController() {
-        sortingCriteriaList.addListener((ListChangeListener<? super SortingCriteria>) change -> updateComparator());
-    }
-
-    private static Function<WorkItem, ? extends Comparable> orderBy(SortingCriteria criteria) {
-        switch (criteria) {
-            case Priority:
-                return WorkItem::getPriority;
-            case DueDate:
-                return WorkItem::getDueDateTime;
-            default:
-                throw new IllegalArgumentException("" + criteria);
-        }
+        possibleSortingCriteriaList = Arrays.asList(
+                new Priority(),
+                new DueDate()
+        );
+        selectedSortingCriteriaList.addListener((ListChangeListener<? super SortingCriteria>) change -> updateComparator());
     }
 
     private Comparator<WorkItem> getSortingComparator() {
         Comparator comparator = null;
-        if (sortingCriteriaList.size() > 0) {
-            comparator = Comparator.comparing(orderBy(sortingCriteriaList.get(0)), Comparator.nullsLast(Comparator.naturalOrder()));
+        SortingCriteria sortingCriteria;
+
+        if (selectedSortingCriteriaList.size() > 0) {
+            sortingCriteria = selectedSortingCriteriaList.get(0);
+            comparator = Comparator.comparing(sortingCriteria.getOrderFunction(), Comparator.nullsLast(getComparatorBySortingDirection(sortingCriteria.getSortingDirection())));
         }
-        for (int i = 1; i < sortingCriteriaList.size(); i++) {
-            SortingCriteria sortingCriteria = sortingCriteriaList.get(i);
-            comparator = comparator.thenComparing(orderBy(sortingCriteria), Comparator.nullsLast(Comparator.naturalOrder()));
+
+        for (int i = 1; i < selectedSortingCriteriaList.size(); i++) {
+            sortingCriteria = selectedSortingCriteriaList.get(i);
+            comparator = comparator.thenComparing(sortingCriteria.getOrderFunction(), Comparator.nullsLast(getComparatorBySortingDirection(sortingCriteria.getSortingDirection())));
         }
+        return comparator;
+    }
+
+    private Comparator getComparatorBySortingDirection(final SortingDirection sortingDirection) {
+        Comparator comparator = null;
+
+        switch (sortingDirection) {
+            case Ascending:
+                comparator = Comparator.naturalOrder();
+                break;
+
+            case Descending:
+                comparator = Comparator.reverseOrder();
+                break;
+
+            default:
+                throw new RuntimeException("The selected sorting direction could not be mapped to a comparator.");
+        }
+
         return comparator;
     }
 
@@ -58,18 +78,16 @@ public class SortingController {
     }
 
     public void addSortingCriteriaByString(String sortingCriteriaString) {
-        sortingCriteriaList.add(SortingCriteria.valueOf(sortingCriteriaString));
+        SortingCriteria foundSortingCriteria = possibleSortingCriteriaList.stream().filter(sortingCriteria -> sortingCriteria.getName() == sortingCriteriaString).findFirst().get();
+        selectedSortingCriteriaList.add(foundSortingCriteria);
     }
 
     public void removeSortingCriteriaByString(String sortingCriteriaString) {
-        sortingCriteriaList.remove(SortingCriteria.valueOf(sortingCriteriaString));
+        SortingCriteria foundSortingCriteria = possibleSortingCriteriaList.stream().filter(sortingCriteria -> sortingCriteria.getName() == sortingCriteriaString).findFirst().get();
+        selectedSortingCriteriaList.remove(foundSortingCriteria);
     }
 
     public List<String> getSortingCriterias() {
-        return Arrays.stream(SortingCriteria.values()).map(sortingCriteria -> sortingCriteria.toString()).collect(Collectors.toList());
-    }
-
-    enum SortingCriteria {
-        Priority, DueDate;
+        return possibleSortingCriteriaList.stream().map(SortingCriteria::getName).collect(Collectors.toList());
     }
 }
