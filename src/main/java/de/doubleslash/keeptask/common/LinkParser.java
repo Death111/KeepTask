@@ -13,7 +13,7 @@ public class LinkParser {
     String markdownRegex = "\\[([^\\]]+)\\]\\((" + urlRegex + ")\\)";
     Pattern linkOnlyPattern = Pattern.compile("^" + urlRegex);
     Pattern markdownPattern = Pattern.compile("^" + markdownRegex);
-    Pattern untilNextWordPattern = Pattern.compile("^(\\S*\\s)\\S");
+    Pattern untilNextWordPattern = Pattern.compile("^(\\S*\\s+)\\S");
 
     public List<TodoPart> splitAtLinks(String input) {
         List<TodoPart> list = new ArrayList<>();

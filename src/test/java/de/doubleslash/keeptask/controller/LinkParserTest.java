@@ -91,6 +91,18 @@ public class LinkParserTest {
         );
     }
 
+    @Test
+    void shouldDetectMarkdownLinkWhenDoubleSpaceIsBefore() {
+        String todo = "Hello  [google](https://www.google.de) how are you?";
+        List<TodoPart> split = linkParser.splitAtLinks(todo);
+        assertAll(
+              () -> assertThat(split).hasSize(3),
+              () -> assertEquals(split.get(0), new TodoPart("Hello  ")),
+              () -> assertEquals(split.get(1), new TodoPart("google", "https://www.google.de")),
+              () -> assertEquals(split.get(2), new TodoPart(" how are you?"))
+        );
+    }
+
     private void assertEquals(TodoPart part1, TodoPart part2) {
         assertAll(
                 () -> assertThat(part1.getStringValue()).isEqualTo(part2.getStringValue()),
