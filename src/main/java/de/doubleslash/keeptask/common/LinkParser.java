@@ -10,10 +10,10 @@ import java.util.regex.Pattern;
 public class LinkParser {
 
     String urlRegex = "https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-    String markdownRegex = "\\[([\\w\\s\\d]+)\\]\\((" + urlRegex + ")\\)";
+    String markdownRegex = "\\[([^\\]]+)\\]\\((" + urlRegex + ")\\)";
     Pattern linkOnlyPattern = Pattern.compile("^" + urlRegex);
     Pattern markdownPattern = Pattern.compile("^" + markdownRegex);
-    Pattern untilNextWordPattern = Pattern.compile("^([^\\s]*\\s)\\S");
+    Pattern untilNextWordPattern = Pattern.compile("^(\\S*\\s)\\S");
 
     public List<TodoPart> splitAtLinks(String input) {
         List<TodoPart> list = new ArrayList<>();
