@@ -49,7 +49,7 @@ public class EditWorkItemController {
         todoTextInput.setText(workItem.getTodo());
         if (workItem.getDueDateTime() != null)
             dueDateDatePicker.setValue(workItem.getDueDateTime().toLocalDate());
-        priorityTextInput.setText(workItem.getPriority());
+        priorityTextInput.setText(workItem.getPriority().toString());
         projectTextInput.setText(workItem.getProject());
         if (workItem.getCreatedDateTime() != null)
             createdDateDatePicker.setValue(workItem.getCreatedDateTime().toLocalDate());
@@ -64,7 +64,7 @@ public class EditWorkItemController {
         workItem.setTodo(todoTextInput.getText());
         if (dueDateDatePicker.getValue() != null)
             workItem.setDueDateTime(dueDateDatePicker.getValue().atStartOfDay());
-        workItem.setPriority(priorityTextInput.getText());
+        workItem.setPriority(WorkItem.Priority.valueOf(priorityTextInput.getText()));
         workItem.setProject(projectTextInput.getText());
         if (createdDateDatePicker.getValue() != null)
             workItem.setCreatedDateTime(createdDateDatePicker.getValue().atStartOfDay());

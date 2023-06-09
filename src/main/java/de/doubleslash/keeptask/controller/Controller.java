@@ -16,12 +16,7 @@
 
 package de.doubleslash.keeptask.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.function.Predicate;
-
-import javax.annotation.PreDestroy;
-
+import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.WorkItem;
 import de.doubleslash.keeptask.model.repos.WorkItemRepository;
 import org.slf4j.Logger;
@@ -29,7 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.doubleslash.keeptask.model.Model;
+import javax.annotation.PreDestroy;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class Controller {
@@ -93,11 +90,6 @@ public class Controller {
     @PreDestroy
     public void shutdown() {
         LOG.info("Controller shutdown");
-    }
-
-    public void setFilterPredicate(Predicate<WorkItem> filterPredicate) {
-        LOG.debug("Filters were changed");
-        model.getWorkFilteredList().setPredicate(filterPredicate);
     }
 
     public void setLatestSelectedProject(String projectName) {
