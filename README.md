@@ -1,9 +1,11 @@
 # KeepTask
 
+<img src="src/main/resources/icons/icon.png" align="left" style="padding-right:10px" width="50px"/>
 KeepTask is a Java application built with JavaFX that provides a convenient way to track your tasks and manage your to-do lists. This README file serves as a guide to help you understand the application and get started with it.
 
+The Ui looks like the following:
 ![Main Ui](readme/keeptask.png?raw=true)  
-
+ 
 ## Features
 * **Quickly add TODOs**: The app is designed to allow you to quickly add new tasks to your to-do list.
 * **Markdown-style links**: You can use markdown-style links within your TODOs, making it easy to reference external resources or related tasks.
