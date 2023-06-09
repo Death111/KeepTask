@@ -18,6 +18,11 @@
 /.idea/codeStyles/*
 !/.idea/codeStyles/Project.xml
 !/.idea/codeStyles/codeStyleConfig.xml
+# Keep the copyroghts.
+!/.idea/copyright
+/.idea/copyright/*
+!/.idea/copyright/GPL3.xml
+!/.idea/copyright/profiles_settings.xml
 *.iws
 *.iml
 *.ipr
