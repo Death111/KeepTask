@@ -18,53 +18,55 @@ package de.doubleslash.keeptask.common;
 
 import java.io.File;
 import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileOpenHelper {
 
-   private static final Logger LOG = LoggerFactory.getLogger(FileOpenHelper.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FileOpenHelper.class);
 
-   private FileOpenHelper() {}
+  private FileOpenHelper() {
+  }
 
-   public static boolean openFile(final String filePath) {
-      final File file = new File(filePath);
-      final Runtime rt = Runtime.getRuntime();
+  public static boolean openFile(final String filePath) {
+    final File file = new File(filePath);
+    final Runtime rt = Runtime.getRuntime();
 
-      if (file.exists() && file.isFile()) {
-         if (OS.isWindows()) {
-            openFileWindows(rt, file);
-         } else if (OS.isLinux()) {
-            openFileLinux(rt, filePath);
-         } else {
-            LOG.warn("OS is not supported");
-         }
-         return true;
+    if (file.exists() && file.isFile()) {
+      if (OS.isWindows()) {
+        openFileWindows(rt, file);
+      } else if (OS.isLinux()) {
+        openFileLinux(rt, filePath);
       } else {
-         return false;
+        LOG.warn("OS is not supported");
       }
-   }
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-   private static void openFileWindows(final Runtime rt, final File file) {
-      final String command = "rundll32 url.dll,FileProtocolHandler " + file;
-      try {
-         LOG.debug("executing command: {}", command);
-         rt.exec(command);
-      } catch (final Exception e) {
-         LOG.error("Could not open file '" + file + "' with command '" + command + "'.", e);
-      }
-   }
+  private static void openFileWindows(final Runtime rt, final File file) {
+    final String command = "rundll32 url.dll,FileProtocolHandler " + file;
+    try {
+      LOG.debug("executing command: {}", command);
+      rt.exec(command);
+    } catch (final Exception e) {
+      LOG.error("Could not open file '" + file + "' with command '" + command + "'.", e);
+    }
+  }
 
-   private static void openFileLinux(final Runtime rt, final String filePath) {
-      final String[] command = {
-            "xdg-open", filePath
-      };
-      try {
-         LOG.debug("executing command: {}", Arrays.toString(command));
-         rt.exec(command);
-      } catch (final Exception e) {
-         LOG.error("Could not open file '" + filePath + "' with command '" + Arrays.toString(command) + "'.", e);
-      }
-   }
+  private static void openFileLinux(final Runtime rt, final String filePath) {
+    final String[] command = {
+        "xdg-open", filePath
+    };
+    try {
+      LOG.debug("executing command: {}", Arrays.toString(command));
+      rt.exec(command);
+    } catch (final Exception e) {
+      LOG.error(
+          "Could not open file '" + filePath + "' with command '" + Arrays.toString(command) + "'.",
+          e);
+    }
+  }
 }

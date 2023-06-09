@@ -4,20 +4,44 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: rgba(54,143,179,0.01); -fx-background-radius: 10 10 10 10; -fx-border-radius: 10 10 10 10; -fx-border-color: grey; -fx-border-style: solid; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.doubleslash.keeptask.view.MainWindowController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
          <children>
-            <HBox alignment="TOP_RIGHT">
-               <children>
-                  <Button fx:id="minimizeButton" mnemonicParsing="false" text="_" />
-                  <Button fx:id="closeButton" mnemonicParsing="false" text="x" />
-               </children>
-            </HBox>
+            <BorderPane>
+               <left>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <ImageView fitHeight="21.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../icons/icon_small.png" />
+                           </image>
+                        </ImageView>
+                        <Label text="KeepTask">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </left>
+               <right>
+                  <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="minimizeButton" mnemonicParsing="false" text="_" />
+                        <Button fx:id="closeButton" mnemonicParsing="false" text="x" />
+                     </children>
+                  </HBox>
+               </right>
+            </BorderPane>
             <VBox fx:id="filterVBox" spacing="5.0" />
             <VBox>
                <children>

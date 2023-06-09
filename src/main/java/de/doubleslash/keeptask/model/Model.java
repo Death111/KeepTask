@@ -16,62 +16,57 @@
 
 package de.doubleslash.keeptask.model;
 
-import de.doubleslash.keeptask.model.repos.WorkItemRepository;
-import javafx.beans.InvalidationListener;
+import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.paint.Color;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javafx.scene.paint.Color;
-
-import java.util.List;
 
 @Component
 public class Model {
 
 
+  public static final Color ORIGINAL_DEFAULT_BACKGROUND_COLOR = Color.WHITE;
+  public final ObjectProperty<Color> defaultBackgroundColor = new SimpleObjectProperty<>(
+      ORIGINAL_DEFAULT_BACKGROUND_COLOR);
+  private ObservableList<WorkItem> workItems = FXCollections.observableArrayList();
+  private FilteredList<WorkItem> workFilteredItems = new FilteredList(workItems);
 
-    public static final Color ORIGINAL_DEFAULT_BACKGROUND_COLOR = Color.WHITE;
-    public final ObjectProperty<Color> defaultBackgroundColor = new SimpleObjectProperty<>(
-            ORIGINAL_DEFAULT_BACKGROUND_COLOR);
-    private ObservableList<WorkItem> workItems = FXCollections.observableArrayList();
-    private FilteredList<WorkItem> workFilteredItems = new FilteredList(workItems);
+  private StringProperty latestSelectedProject = new SimpleStringProperty();
 
-    private StringProperty latestSelectedProject = new SimpleStringProperty();
+  @Autowired
+  public Model() {
+    super();
+  }
 
-    @Autowired
-    public Model() {
-        super();
-    }
+  public void setWorkItems(List<WorkItem> workItems) {
+    this.workItems.clear();
+    this.workItems.addAll(workItems);
+  }
 
-    public void setWorkItems(List<WorkItem> workItems) {
-        this.workItems.clear();
-        this.workItems.addAll(workItems);
-    }
+  public ObservableList<WorkItem> getWorkItems() {
+    return FXCollections.unmodifiableObservableList(workItems);
+  }
 
-    public ObservableList<WorkItem> getWorkItems() {
-        return FXCollections.unmodifiableObservableList(workItems);
-    }
+  public ObservableList<WorkItem> getWorkFilteredItems() {
+    return FXCollections.unmodifiableObservableList(workFilteredItems);
+  }
 
-    public ObservableList<WorkItem> getWorkFilteredItems() {
-        return FXCollections.unmodifiableObservableList(workFilteredItems);
-    }
+  public FilteredList<WorkItem> getWorkFilteredList() {
+    return workFilteredItems;
+  }
 
-    public FilteredList<WorkItem> getWorkFilteredList(){return workFilteredItems;}
+  public StringProperty latestSelectedProjectProperty() {
+    return latestSelectedProject;
+  }
 
-    public StringProperty latestSelectedProjectProperty() {
-        return latestSelectedProject;
-    }
-
-    public void setLatestSelectedProject(String latestSelectedProject) {
-        this.latestSelectedProject.set(latestSelectedProject);
-    }
+  public void setLatestSelectedProject(String latestSelectedProject) {
+    this.latestSelectedProject.set(latestSelectedProject);
+  }
 }

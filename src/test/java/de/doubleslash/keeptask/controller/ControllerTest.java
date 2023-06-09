@@ -16,30 +16,23 @@
 
 package de.doubleslash.keeptask.controller;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-
+import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.repos.WorkItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
-import de.doubleslash.keeptask.common.DateProvider;
-import de.doubleslash.keeptask.model.Model;
-
 public class ControllerTest {
 
-   private static Controller testee;
+  private static Controller testee;
 
-   private  Model model;
+  private Model model;
 
-   private WorkItemRepository mockedWorkItemRepository;
+  private WorkItemRepository mockedWorkItemRepository;
 
-   @BeforeEach
-   void beforeTest() {
-      mockedWorkItemRepository = Mockito.mock(WorkItemRepository.class);
-      model = new Model();
-      testee = new Controller(model, mockedWorkItemRepository);
-   }
+  @BeforeEach
+  void beforeTest() {
+    mockedWorkItemRepository = Mockito.mock(WorkItemRepository.class);
+    model = new Model();
+    testee = new Controller(model, mockedWorkItemRepository);
+  }
 }

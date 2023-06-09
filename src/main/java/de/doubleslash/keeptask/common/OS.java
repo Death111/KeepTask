@@ -18,30 +18,30 @@ package de.doubleslash.keeptask.common;
 
 public class OS {
 
-   private static final String OS_PROPERTY = "os.name";
+  private static final String OS_PROPERTY = "os.name";
 
-   private OS() {
-      // prevent instance creation
-   }
+  private OS() {
+    // prevent instance creation
+  }
 
-   public static boolean isWindows() {
-      if (System.getProperty(OS_PROPERTY).toLowerCase().contains("windows")) {
-         return true;
-      }
+  public static boolean isWindows() {
+    if (System.getProperty(OS_PROPERTY).toLowerCase().contains("windows")) {
+      return true;
+    }
 
-      return false;
-   }
+    return false;
+  }
 
-   public static boolean isLinux() {
-      if (System.getProperty(OS_PROPERTY).toLowerCase().contains("linux")) {
-         return true;
-      }
+  public static boolean isLinux() {
+    if (System.getProperty(OS_PROPERTY).toLowerCase().contains("linux")) {
+      return true;
+    }
 
-      return false;
-   }
+    return false;
+  }
 
-   public static String getOSname() {
-      return System.getProperty(OS_PROPERTY);
-   }
+  public static String getOSname() {
+    return System.getProperty(OS_PROPERTY);
+  }
 
 }
