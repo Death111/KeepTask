@@ -5,15 +5,15 @@ import javafx.scene.paint.Color;
 
 public interface TableRow {
 
-   public String getNotes();
+  public String getNotes();
 
-   public String getTimeRange();
+  public String getTimeRange();
 
-   public String getTimeSum();
+  public String getTimeSum();
 
-   public HBox getButtonBox();
+  public HBox getButtonBox();
 
-   public boolean isUnderlined();
+  public boolean isUnderlined();
 
-   public Color getProjectColor();
+  public Color getProjectColor();
 }

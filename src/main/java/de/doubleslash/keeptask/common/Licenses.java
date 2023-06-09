@@ -17,26 +17,26 @@
 package de.doubleslash.keeptask.common;
 
 public enum Licenses {
-;
-   private final String path;
-   private final String name;
-   private final String url;
+  ;
+  private final String path;
+  private final String name;
+  private final String url;
 
-   private Licenses(final String licensePath, final String licenseName, final String urlWebsite) {
-      path = licensePath;
-      name = licenseName;
-      url = urlWebsite;
-   }
+  private Licenses(final String licensePath, final String licenseName, final String urlWebsite) {
+    path = licensePath;
+    name = licenseName;
+    url = urlWebsite;
+  }
 
-   public String getPath() {
-      return path;
-   }
+  public String getPath() {
+    return path;
+  }
 
-   public String getName() {
-      return name;
-   }
+  public String getName() {
+    return name;
+  }
 
-   public String getUrl() {
-      return url;
-   }
+  public String getUrl() {
+    return url;
+  }
 }

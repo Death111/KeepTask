@@ -19,37 +19,38 @@ package de.doubleslash.keeptask.view.license;
 import de.doubleslash.keeptask.common.Licenses;
 
 public class LicenseTableRow {
-   private String name;
-   private String licenseName;
-   private Licenses license;
 
-   public LicenseTableRow(final String name, final Licenses license) {
-      this.license = license;
-      this.licenseName = license.getName();
-      this.name = name;
-   }
+  private String name;
+  private String licenseName;
+  private Licenses license;
 
-   public String getName() {
-      return name;
-   }
+  public LicenseTableRow(final String name, final Licenses license) {
+    this.license = license;
+    this.licenseName = license.getName();
+    this.name = name;
+  }
 
-   public void setName(final String name) {
-      this.name = name;
-   }
+  public String getName() {
+    return name;
+  }
 
-   public String getLicenseName() {
-      return licenseName;
-   }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-   public void setLicenseName(final String licenseName) {
-      this.licenseName = licenseName;
-   }
+  public String getLicenseName() {
+    return licenseName;
+  }
 
-   public Licenses getLicense() {
-      return license;
-   }
+  public void setLicenseName(final String licenseName) {
+    this.licenseName = licenseName;
+  }
 
-   public void setLicense(final Licenses license) {
-      this.license = license;
-   }
+  public Licenses getLicense() {
+    return license;
+  }
+
+  public void setLicense(final Licenses license) {
+    this.license = license;
+  }
 }

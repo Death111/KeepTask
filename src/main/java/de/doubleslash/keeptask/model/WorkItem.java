@@ -1,108 +1,115 @@
 package de.doubleslash.keeptask.model;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 
 @Entity
 public class WorkItem {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", updatable = false, nullable = false)
+  private long id;
 
-    private String project;
-    private  String priority;
-    private String todo;
-    private LocalDateTime createdDateTime;
-    private LocalDateTime dueDateTime;
-    private LocalDateTime completedDateTime;
-    private boolean finished;
-    private String note;
+  private String project;
+  private String priority;
+  private String todo;
+  private LocalDateTime createdDateTime;
+  private LocalDateTime dueDateTime;
+  private LocalDateTime completedDateTime;
+  private boolean finished;
+  private String note;
 
-    public void setProject(String project) {
-        this.project = project;
-    }
+  public void setProject(String project) {
+    this.project = project;
+  }
 
-    public void setTodo(String todo) {
-        this.todo = todo;
-    }
+  public void setTodo(String todo) {
+    this.todo = todo;
+  }
 
-    public void setCreatedDateTime(LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
-    }
+  public void setCreatedDateTime(LocalDateTime createdDateTime) {
+    this.createdDateTime = createdDateTime;
+  }
 
-    public void setDueDateTime(LocalDateTime dueDateTime) {
-        this.dueDateTime = dueDateTime;
-    }
+  public void setDueDateTime(LocalDateTime dueDateTime) {
+    this.dueDateTime = dueDateTime;
+  }
 
-    public void setCompletedDateTime(LocalDateTime completedDateTime) {
-        this.completedDateTime = completedDateTime;
-    }
+  public void setCompletedDateTime(LocalDateTime completedDateTime) {
+    this.completedDateTime = completedDateTime;
+  }
 
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
+  public void setFinished(boolean finished) {
+    this.finished = finished;
+  }
 
-    public void setNote(String note) {
-        this.note = note;
-    }
+  public void setNote(String note) {
+    this.note = note;
+  }
 
-    public WorkItem(){
-        // needed for hibernate
-    }
-    public WorkItem(String project, String priority, String todo, LocalDateTime createdDateTime, LocalDateTime dueDateTime, LocalDateTime completedDateTime, boolean finished, String note) {
-        this.project = project;
-        this.priority = priority;
-        this.todo = todo;
-        this.createdDateTime = createdDateTime;
-        this.dueDateTime = dueDateTime;
-        this.completedDateTime = completedDateTime;
-        this.finished = finished;
-        this.note = note;
-    }
+  public WorkItem() {
+    // needed for hibernate
+  }
 
-    public long getId() {
-        return id;
-    }
+  public WorkItem(String project, String priority, String todo, LocalDateTime createdDateTime,
+      LocalDateTime dueDateTime, LocalDateTime completedDateTime, boolean finished, String note) {
+    this.project = project;
+    this.priority = priority;
+    this.todo = todo;
+    this.createdDateTime = createdDateTime;
+    this.dueDateTime = dueDateTime;
+    this.completedDateTime = completedDateTime;
+    this.finished = finished;
+    this.note = note;
+  }
 
-    public String getProject() {
-        return project;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public String getTodo() {
-        return todo;
-    }
+  public String getProject() {
+    return project;
+  }
 
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
-    }
+  public String getTodo() {
+    return todo;
+  }
 
-    public LocalDateTime getDueDateTime() {
-        return dueDateTime;
-    }
+  public LocalDateTime getCreatedDateTime() {
+    return createdDateTime;
+  }
 
-    public LocalDateTime getCompletedDateTime() {
-        return completedDateTime;
-    }
+  public LocalDateTime getDueDateTime() {
+    return dueDateTime;
+  }
 
-    public boolean isFinished() {
-        return finished;
-    }
+  public LocalDateTime getCompletedDateTime() {
+    return completedDateTime;
+  }
 
-    public String getNote() {
-        return note;
-    }
-    public String getPriority() {
-        return priority;
-    }
+  public boolean isFinished() {
+    return finished;
+  }
 
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
+  public String getNote() {
+    return note;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public String getPriority() {
+    return priority;
+  }
+
+  public void setPriority(String priority) {
+    this.priority = priority;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
 }

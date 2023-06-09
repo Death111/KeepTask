@@ -16,91 +16,91 @@
 
 package de.doubleslash.keeptask.controller;
 
+import de.doubleslash.keeptask.model.Model;
+import de.doubleslash.keeptask.model.WorkItem;
+import de.doubleslash.keeptask.model.repos.WorkItemRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
-
 import javax.annotation.PreDestroy;
-
-import de.doubleslash.keeptask.model.WorkItem;
-import de.doubleslash.keeptask.model.repos.WorkItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.doubleslash.keeptask.model.Model;
-
 @Service
 public class Controller {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
 
-    private final Model model;
+  private final Model model;
 
-    private WorkItemRepository workItemRepository;
+  private WorkItemRepository workItemRepository;
 
-    @Autowired
-    public Controller(final Model model, final WorkItemRepository workItemRepository) {
-        this.model = model;
-        this.workItemRepository = workItemRepository;
+  @Autowired
+  public Controller(final Model model, final WorkItemRepository workItemRepository) {
+    this.model = model;
+    this.workItemRepository = workItemRepository;
+  }
+
+  public void init() {
+    reloadWorkItemsFromRepo();
+  }
+
+  public void addWorkItem(WorkItem workItem) {
+    WorkItem savedWorkItem = workItemRepository.save(workItem);
+    reloadWorkItemsFromRepo();
+  }
+
+  public void deleteWorkItem(WorkItem workItem) {
+    workItemRepository.delete(workItem);
+    reloadWorkItemsFromRepo();
+  }
+
+  public void toggleWorkItemCompleted(WorkItem workItem) {
+    workItem.setFinished(!workItem.isFinished());
+    if (workItem.isFinished()) {
+      workItem.setCompletedDateTime(LocalDateTime.now());
+    } else {
+      workItem.setCompletedDateTime(null);
     }
 
-    public void init() {
-        reloadWorkItemsFromRepo();
-    }
+    workItemRepository.save(workItem);
+    reloadWorkItemsFromRepo();
+  }
 
-    public void addWorkItem(WorkItem workItem) {
-        WorkItem savedWorkItem = workItemRepository.save(workItem);
-        reloadWorkItemsFromRepo();
-    }
+  public void editWorkItem(WorkItem oldItem, WorkItem newItem) {
 
-    public void deleteWorkItem(WorkItem workItem) {
-        workItemRepository.delete(workItem);
-        reloadWorkItemsFromRepo();
-    }
+    oldItem.setFinished(newItem.isFinished());
+    oldItem.setTodo(newItem.getTodo());
+    oldItem.setDueDateTime(newItem.getDueDateTime());
+    oldItem.setPriority(newItem.getPriority());
+    oldItem.setProject(newItem.getProject());
+    oldItem.setCreatedDateTime(newItem.getCreatedDateTime());
+    oldItem.setCompletedDateTime(newItem.getCompletedDateTime());
+    oldItem.setNote(newItem.getNote());
 
-    public void toggleWorkItemCompleted(WorkItem workItem) {
-        workItem.setFinished(!workItem.isFinished());
-        if (workItem.isFinished()) workItem.setCompletedDateTime(LocalDateTime.now());
-        else workItem.setCompletedDateTime(null);
+    workItemRepository.save(oldItem);
+    reloadWorkItemsFromRepo();
+  }
 
-        workItemRepository.save(workItem);
-        reloadWorkItemsFromRepo();
-    }
+  private void reloadWorkItemsFromRepo() {
+    // TODO manage list internal and dont refetch everything all the time
+    List<WorkItem> workItems = workItemRepository.findAll();
+    model.setWorkItems(workItems);
+  }
 
-    public void editWorkItem(WorkItem oldItem, WorkItem newItem) {
+  @PreDestroy
+  public void shutdown() {
+    LOG.info("Controller shutdown");
+  }
 
-        oldItem.setFinished(newItem.isFinished());
-        oldItem.setTodo(newItem.getTodo());
-        oldItem.setDueDateTime(newItem.getDueDateTime());
-        oldItem.setPriority(newItem.getPriority());
-        oldItem.setProject(newItem.getProject());
-        oldItem.setCreatedDateTime(newItem.getCreatedDateTime());
-        oldItem.setCompletedDateTime(newItem.getCompletedDateTime());
-        oldItem.setNote(newItem.getNote());
+  public void setFilterPredicate(Predicate<WorkItem> filterPredicate) {
+    LOG.debug("Filters were changed");
+    model.getWorkFilteredList().setPredicate(filterPredicate);
+  }
 
-        workItemRepository.save(oldItem);
-        reloadWorkItemsFromRepo();
-    }
-
-    private void reloadWorkItemsFromRepo() {
-        // TODO manage list internal and dont refetch everything all the time
-        List<WorkItem> workItems = workItemRepository.findAll();
-        model.setWorkItems(workItems);
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        LOG.info("Controller shutdown");
-    }
-
-    public void setFilterPredicate(Predicate<WorkItem> filterPredicate) {
-        LOG.debug("Filters were changed");
-        model.getWorkFilteredList().setPredicate(filterPredicate);
-    }
-
-    public void setLatestSelectedProject(String projectName) {
-        model.setLatestSelectedProject(projectName);
-    }
+  public void setLatestSelectedProject(String projectName) {
+    model.setLatestSelectedProject(projectName);
+  }
 }

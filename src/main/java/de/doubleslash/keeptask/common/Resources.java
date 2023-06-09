@@ -20,44 +20,43 @@ import java.net.URL;
 
 public class Resources {
 
-    private Resources() {
-        throw new IllegalStateException("Utility class");
+  private Resources() {
+    throw new IllegalStateException("Utility class");
+  }
+
+  public enum RESOURCE {
+    /**
+     * FONTS
+     **/
+    FONT_BOLD("/font/OpenSans-Bold.ttf"),
+    FONT_REGULAR("/font/OpenSans-Regular.ttf"),
+
+    /**
+     * LAYOUTS
+     **/
+    // main
+    FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
+    FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
+    FXML_FILTER_LAYOUT("/layouts/FiltersLayout.fxml"),
+
+    SVG_TRASH_ICON("/svgs/trash-can.svg"),
+
+    SVG_PENCIL_ICON("/svgs/pencil.svg"),
+
+    ICON_MAIN("/icons/icon.png");
+
+    String resourceLocation;
+
+    private RESOURCE(final String resourceLocation) {
+      this.resourceLocation = resourceLocation;
     }
 
-    public enum RESOURCE {
-        /**
-         * FONTS
-         **/
-        FONT_BOLD("/font/OpenSans-Bold.ttf"),
-        FONT_REGULAR("/font/OpenSans-Regular.ttf"),
-
-        /**
-         * LAYOUTS
-         **/
-        // main
-        FXML_VIEW_LAYOUT("/layouts/ViewLayout.fxml"),
-        FXML_EDIT_WORKITEM_LAYOUT("/layouts/EditWorkItemDialog.fxml"),
-        FXML_FILTER_LAYOUT("/layouts/FiltersLayout.fxml"),
-
-        SVG_TRASH_ICON("/svgs/trash-can.svg"),
-
-        SVG_PENCIL_ICON("/svgs/pencil.svg"),
-
-        ICON_MAIN("/icons/icon.png")
-        ;
-
-        String resourceLocation;
-
-        private RESOURCE(final String resourceLocation) {
-            this.resourceLocation = resourceLocation;
-        }
-
-        public String getResourceLocation() {
-            return resourceLocation;
-        }
+    public String getResourceLocation() {
+      return resourceLocation;
     }
+  }
 
-    public static URL getResource(final RESOURCE resource) {
-        return Resources.class.getResource(resource.getResourceLocation());
-    }
+  public static URL getResource(final RESOURCE resource) {
+    return Resources.class.getResource(resource.getResourceLocation());
+  }
 }

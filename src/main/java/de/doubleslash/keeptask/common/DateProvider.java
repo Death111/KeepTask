@@ -20,6 +20,6 @@ import java.time.LocalDateTime;
 
 public interface DateProvider {
 
-   LocalDateTime dateTimeNow();
+  LocalDateTime dateTimeNow();
 
 }

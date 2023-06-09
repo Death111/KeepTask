@@ -17,47 +17,48 @@
 package de.doubleslash.keeptask.common;
 
 import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BrowserHelper {
 
-   public static final Logger LOG = LoggerFactory.getLogger(BrowserHelper.class);
+  public static final Logger LOG = LoggerFactory.getLogger(BrowserHelper.class);
 
-   private BrowserHelper() {}
+  private BrowserHelper() {
+  }
 
-   public static void openURL(final String url) {
-      final Runtime rt = Runtime.getRuntime();
+  public static void openURL(final String url) {
+    final Runtime rt = Runtime.getRuntime();
 
-      if (OS.isWindows()) {
-         openUrlWindows(rt, url);
-      } else if (OS.isLinux()) {
-         openUrlLinux(rt, url);
-      } else {
-         LOG.warn("OS is not supported");
-      }
-   }
+    if (OS.isWindows()) {
+      openUrlWindows(rt, url);
+    } else if (OS.isLinux()) {
+      openUrlLinux(rt, url);
+    } else {
+      LOG.warn("OS is not supported");
+    }
+  }
 
-   private static void openUrlWindows(final Runtime rt, final String url) {
-      final String command = "rundll32 url.dll,FileProtocolHandler " + url;
-      try {
-         LOG.debug("Executing command: {}", command);
-         rt.exec(command);
-      } catch (final Exception e) {
-         LOG.error("Could not open url '" + url + "' with command '" + command + "'.", e);
-      }
-   }
+  private static void openUrlWindows(final Runtime rt, final String url) {
+    final String command = "rundll32 url.dll,FileProtocolHandler " + url;
+    try {
+      LOG.debug("Executing command: {}", command);
+      rt.exec(command);
+    } catch (final Exception e) {
+      LOG.error("Could not open url '" + url + "' with command '" + command + "'.", e);
+    }
+  }
 
-   private static void openUrlLinux(final Runtime rt, final String url) {
-      final String[] command = {
-            "xdg-open", url
-      };
-      try {
-         LOG.debug("Executing command: {}", Arrays.toString(command));
-         rt.exec(command);
-      } catch (final Exception e) {
-         LOG.error("Could not open url '" + url + "' with command '" + Arrays.toString(command) + "'.", e);
-      }
-   }
+  private static void openUrlLinux(final Runtime rt, final String url) {
+    final String[] command = {
+        "xdg-open", url
+    };
+    try {
+      LOG.debug("Executing command: {}", Arrays.toString(command));
+      rt.exec(command);
+    } catch (final Exception e) {
+      LOG.error("Could not open url '" + url + "' with command '" + Arrays.toString(command) + "'.",
+          e);
+    }
+  }
 }
