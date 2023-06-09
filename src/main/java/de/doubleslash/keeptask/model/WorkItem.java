@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 
 @Entity
@@ -34,13 +35,16 @@ public class WorkItem {
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
+  @Lob
   private String project;
   private String priority;
+  @Lob
   private String todo;
   private LocalDateTime createdDateTime;
   private LocalDateTime dueDateTime;
   private LocalDateTime completedDateTime;
   private boolean finished;
+  @Lob
   private String note;
 
   public void setProject(String project) {
