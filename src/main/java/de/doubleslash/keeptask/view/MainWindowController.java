@@ -163,7 +163,7 @@ public class MainWindowController {
       dueDatePicker.setValue(null);
     });
 
-    model.getWorkFilteredItems().addListener((ListChangeListener<? super WorkItem>) change -> {
+    sortedWorkItems.addListener((ListChangeListener<? super WorkItem>) change -> {
       refreshTodos();
     });
 
