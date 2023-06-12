@@ -198,9 +198,9 @@ public class MainWindowController {
       children.add(todoNode);
     }
 
-      if (mainStage != null) {
-          mainStage.sizeToScene();
-      }
+    if (mainStage != null) {
+      mainStage.sizeToScene();
+    }
   }
 
   private Node createTodoNode(WorkItem workItem) {
@@ -218,15 +218,15 @@ public class MainWindowController {
     hbox2.disableProperty().bind(completedCheckBox.selectedProperty());
     ObservableList<Node> children1 = hbox2.getChildren();
     Label prioLabel = new Label(workItem.getPriority());
-      if (workItem.getPriority().equalsIgnoreCase("High")) {
-          prioLabel.setTextFill(Color.RED);
-      }
-      if (workItem.getPriority().equalsIgnoreCase("Medium")) {
-          prioLabel.setTextFill(Color.ORANGE);
-      }
-      if (!workItem.getPriority().isEmpty()) {
-          children1.add(prioLabel);
-      }
+    if (workItem.getPriority().equalsIgnoreCase("High")) {
+      prioLabel.setTextFill(Color.RED);
+    }
+    if (workItem.getPriority().equalsIgnoreCase("Medium")) {
+      prioLabel.setTextFill(Color.ORANGE);
+    }
+    if (!workItem.getPriority().isEmpty()) {
+      children1.add(prioLabel);
+    }
 
     Label projectLabel = new Label(workItem.getProject());
     children1.add(projectLabel);
@@ -250,20 +250,20 @@ public class MainWindowController {
     children1.add(todoHbox);
 
     Label dueDateTimeLabel = new Label("Due: " + workItem.getDueDateTime());
-      if (workItem.getDueDateTime() != null) {
-          children1.add(dueDateTimeLabel);
-      }
+    if (workItem.getDueDateTime() != null) {
+      children1.add(dueDateTimeLabel);
+    }
 
     Label noteLabel = new Label("Note: " + workItem.getNote());
-      if (!workItem.getNote().isEmpty()) {
-          children1.add(noteLabel);
-      }
+    if (!workItem.getNote().isEmpty()) {
+      children1.add(noteLabel);
+    }
 
     Label completedDateTimeLabel = new Label("Completed: " + workItem.getCompletedDateTime());
-      if (workItem.isFinished()) // TODO this is only working on rerender
-      {
-          children1.add(completedDateTimeLabel);
-      }
+    if (workItem.isFinished()) // TODO this is only working on rerender
+    {
+      children1.add(completedDateTimeLabel);
+    }
 
     children.add(hbox2);
 
