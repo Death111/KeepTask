@@ -35,10 +35,14 @@ public class Model {
   public static final Color ORIGINAL_DEFAULT_BACKGROUND_COLOR = Color.WHITE;
   public final ObjectProperty<Color> defaultBackgroundColor = new SimpleObjectProperty<>(
       ORIGINAL_DEFAULT_BACKGROUND_COLOR);
-  private ObservableList<WorkItem> workItems = FXCollections.observableArrayList();
-  private FilteredList<WorkItem> workFilteredItems = new FilteredList(workItems);
+  private final ObservableList<WorkItem> workItems = FXCollections.observableArrayList();
+  private final ObservableList<WorkItem> unmodifiableWorkItems = FXCollections.unmodifiableObservableList(
+      workItems);
+  private final FilteredList<WorkItem> workFilteredItems = new FilteredList<>(workItems);
+  private final ObservableList<WorkItem> unmodifiableWorkItemsFiltered = FXCollections.unmodifiableObservableList(
+      workFilteredItems);
 
-  private StringProperty latestSelectedProject = new SimpleStringProperty();
+  private final StringProperty latestSelectedProject = new SimpleStringProperty();
 
   @Autowired
   public Model() {
@@ -51,11 +55,11 @@ public class Model {
   }
 
   public ObservableList<WorkItem> getWorkItems() {
-    return FXCollections.unmodifiableObservableList(workItems);
+    return unmodifiableWorkItems;
   }
 
   public ObservableList<WorkItem> getWorkFilteredItems() {
-    return FXCollections.unmodifiableObservableList(workFilteredItems);
+    return unmodifiableWorkItemsFiltered;
   }
 
   public FilteredList<WorkItem> getWorkFilteredList() {

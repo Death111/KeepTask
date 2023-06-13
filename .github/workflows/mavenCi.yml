@@ -20,7 +20,7 @@ jobs:
 
     env:
       version: 0.0.${{ github.run_number }}
-      
+
     steps:
       - uses: actions/checkout@v3
 
@@ -30,9 +30,9 @@ jobs:
           java-version: '11'
           distribution: 'corretto'
           cache: maven
-        
+
       - name: Build
-        run:  mvn -V -B clean verify -Dproject.version=${{ env.version }}-SNAPSHOT
+        run: mvn -V -B clean verify -Dproject.version=${{ env.version }}-SNAPSHOT
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
