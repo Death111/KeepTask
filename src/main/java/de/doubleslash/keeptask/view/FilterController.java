@@ -35,6 +35,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -81,6 +82,10 @@ public class FilterController {
 
     alsoCompletedCheckbox.setOnAction(actionEvent -> updateFilters());
 
+    searchTextInput.textProperty().addListener((observable, oldValue, newValue) -> {
+      updateFilters();
+    });
+
     todayToggleButton.setUserData(
         (Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false
             : LocalDate.now().isEqual(workItem.getDueDateTime().toLocalDate()));
@@ -114,10 +119,9 @@ public class FilterController {
   private void updateProjectFilterButtons() {
     Set<String> projectNames = model.getWorkItems().stream().map(workItem -> workItem.getProject())
         .collect(Collectors.toSet());
-    projectFilterHbox.getChildren().clear();
 
     // recreate buttons
-    projectFilterHbox.getChildren().addAll(projectNames.stream().map(projectName -> {
+    projectFilterHbox.getChildren().setAll(projectNames.stream().map(projectName -> {
               ToggleButton button = new ToggleButton(projectName);
               button.setUserData(projectName);
               button.setSelected(projectNameFilters.contains(projectName));
@@ -161,7 +165,9 @@ public class FilterController {
           : projectNameFilters.stream().anyMatch(filter -> workItem.getProject().equals(filter));
       boolean completedMatches = alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished();
 
-      return timeFilterMatches && projectNameMatches && completedMatches;
+      boolean searchQueryMatches = StringUtils.containsIgnoreCase(workItem.getTodo(), searchTextInput.getText());
+
+      return timeFilterMatches && projectNameMatches && completedMatches && searchQueryMatches;
     };
     return filterPredicate;
   }

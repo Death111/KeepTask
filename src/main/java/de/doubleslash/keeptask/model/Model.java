@@ -50,8 +50,7 @@ public class Model {
   }
 
   public void setWorkItems(List<WorkItem> workItems) {
-    this.workItems.clear();
-    this.workItems.addAll(workItems);
+    this.workItems.setAll(workItems);
   }
 
   public ObservableList<WorkItem> getWorkItems() {
