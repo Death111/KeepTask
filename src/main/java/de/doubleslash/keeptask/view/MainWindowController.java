@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
@@ -191,12 +192,10 @@ public class MainWindowController {
 
   private void refreshTodos() {
     ObservableList<Node> children = workItemVBox.getChildren();
-    children.clear();
 
-    for (WorkItem workItem : sortedWorkItems) {
-      Node todoNode = createTodoNode(workItem);
-      children.add(todoNode);
-    }
+    List<Node> todosAsNodes = sortedWorkItems.stream().map(this::createTodoNode).collect(
+        Collectors.toList());
+    children.setAll(todosAsNodes);
 
     if (mainStage != null) {
       mainStage.sizeToScene();

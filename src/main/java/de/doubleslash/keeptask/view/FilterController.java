@@ -119,10 +119,9 @@ public class FilterController {
   private void updateProjectFilterButtons() {
     Set<String> projectNames = model.getWorkItems().stream().map(workItem -> workItem.getProject())
         .collect(Collectors.toSet());
-    projectFilterHbox.getChildren().clear();
 
     // recreate buttons
-    projectFilterHbox.getChildren().addAll(projectNames.stream().map(projectName -> {
+    projectFilterHbox.getChildren().setAll(projectNames.stream().map(projectName -> {
               ToggleButton button = new ToggleButton(projectName);
               button.setUserData(projectName);
               button.setSelected(projectNameFilters.contains(projectName));
