@@ -35,6 +35,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -80,6 +81,10 @@ public class FilterController {
     updateProjectFilterButtons();
 
     alsoCompletedCheckbox.setOnAction(actionEvent -> updateFilters());
+
+    searchTextInput.textProperty().addListener((observable, oldValue, newValue) -> {
+      updateFilters();
+    });
 
     todayToggleButton.setUserData(
         (Predicate<WorkItem>) workItem -> workItem.getDueDateTime() == null ? false
@@ -161,7 +166,9 @@ public class FilterController {
           : projectNameFilters.stream().anyMatch(filter -> workItem.getProject().equals(filter));
       boolean completedMatches = alsoCompletedCheckbox.isSelected() ? true : !workItem.isFinished();
 
-      return timeFilterMatches && projectNameMatches && completedMatches;
+      boolean searchQueryMatches = StringUtils.containsIgnoreCase(workItem.getTodo(), searchTextInput.getText());
+
+      return timeFilterMatches && projectNameMatches && completedMatches && searchQueryMatches;
     };
     return filterPredicate;
   }
