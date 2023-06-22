@@ -125,8 +125,7 @@ public class MainWindowController {
     sortedWorkItems = new SortedList<>(model.getWorkFilteredItems());
     Comparator<WorkItem> comparing = Comparator.comparing(
         workItem -> workItem.getDueDateTime() != null ? workItem.getDueDateTime()
-            : LocalDateTime.MIN);
-    comparing = comparing.reversed();
+            : LocalDateTime.MAX);
     sortedWorkItems.setComparator(comparing);
 
     loadFiltersLayout();
