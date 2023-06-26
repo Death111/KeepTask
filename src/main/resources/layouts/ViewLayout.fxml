@@ -59,7 +59,7 @@
                   </HBox>
                </children>
             </VBox>
-            <ScrollPane hbarPolicy="NEVER" maxHeight="250.0" style="-fx-background-color: white; -fx-background: white;">
+            <ScrollPane hbarPolicy="NEVER" maxHeight="250.0" minHeight="0.0" stylesheets="@transparentScrollPaneBackground.css">
                <content>
                   <VBox fx:id="workItemVBox" />
                </content>
