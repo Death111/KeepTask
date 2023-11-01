@@ -247,9 +247,9 @@ public class MainWindowController {
     }
     children1.add(todoHbox);
 
-    Label dueDateTimeLabel = new Label("Due: " + workItem.getDueDateTime());
-    if (workItem.getDueDateTime() != null) {
-      children1.add(dueDateTimeLabel);
+    LocalDateTime dueDateTime = workItem.getDueDateTime();
+    if (dueDateTime != null) {
+      children1.add(createDueDateTimeLabel(dueDateTime));
     }
 
     Label noteLabel = new Label("Note: " + workItem.getNote());
@@ -296,6 +296,19 @@ public class MainWindowController {
     });
 
     return hbox;
+  }
+
+  private Label createDueDateTimeLabel(LocalDateTime dueDateTime) {
+    Label dueDateTimeLabel = new Label("Due: " + dueDateTime);
+    boolean isDueToday = LocalDate.now().isEqual(dueDateTime.toLocalDate());
+    boolean isExpired = LocalDate.now().isAfter(dueDateTime.toLocalDate());
+    if (isDueToday) {
+      dueDateTimeLabel.setTextFill(Color.ORANGE);
+    } else if (isExpired) {
+      dueDateTimeLabel.setTextFill(Color.DARKRED);
+    }
+
+    return dueDateTimeLabel;
   }
 
   private void editTodoClicked(WorkItem workItem) {
