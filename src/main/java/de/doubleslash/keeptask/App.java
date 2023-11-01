@@ -25,21 +25,30 @@ import de.doubleslash.keeptask.common.Resources.RESOURCE;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.view.MainWindowController;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -107,7 +116,9 @@ public class App extends Application {
     LOG.debug("Initialising main UI.");
     primaryStage.setTitle("KeepTask");
     primaryStage.initStyle(StageStyle.TRANSPARENT);
-    primaryStage.getIcons().add(new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString()));
+    Image applicationIcon = new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString());
+    primaryStage.getIcons().setAll(applicationIcon);
+
     primaryStage.setAlwaysOnTop(true);
     primaryStage.setResizable(false);
     primaryStage.setOnCloseRequest(windowEvent -> LOG.info("On close request"));
@@ -122,6 +133,46 @@ public class App extends Application {
     primaryStage.setScene(mainScene);
 
     primaryStage.show();
+
+    updateTaskbarIcon(0, primaryStage,mainPane);
+  }
+
+
+  private final Canvas taskbarCanvas = new Canvas(64, 64);
+
+  private void updateTaskbarIcon(int expiredTasks, Stage primaryStage, Pane mainPane) {
+    final GraphicsContext gcIcon = taskbarCanvas.getGraphicsContext2D();
+    Image applicationIcon = new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString());
+
+    gcIcon.clearRect(0, 0, taskbarCanvas.getWidth(), taskbarCanvas.getHeight());
+
+    //gcIcon.setFill(Color.PINK);
+    //gcIcon.fillRect(0,0,64,64);
+
+    gcIcon.drawImage(applicationIcon, 0, 0, 64, 64);
+
+    gcIcon.setFill(Color.RED);
+    //gcIcon.fillOval(32,32,32,32);
+
+    gcIcon.setStroke(Color.WHITE);
+    gcIcon.setTextAlign(TextAlignment.CENTER);
+    Font aDefault = Font.getDefault();
+    gcIcon.setFont(new Font(aDefault.getName(), 26));
+    gcIcon.setStroke(Color.WHITE);
+    gcIcon.setLineWidth(2);
+    gcIcon.strokeText(expiredTasks + "", 47, 57);
+
+    final SnapshotParameters snapshotParameters = new SnapshotParameters();
+    snapshotParameters.setFill(Color.TRANSPARENT);
+    final WritableImage image = taskbarCanvas.snapshot(snapshotParameters, null);
+
+    final BufferedImage bi = SwingFXUtils.fromFXImage(image, null);
+    final Image icon = SwingFXUtils.toFXImage(bi, null);
+
+    //ImageView e = new ImageView(image);
+    //mainPane.getChildren().add(e);
+
+    primaryStage.getIcons().setAll(icon);
   }
 
   private static void showExceptionAndExit(Exception e) {
