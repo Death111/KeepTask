@@ -81,6 +81,9 @@ public class IconController {
     //gcIcon.fillRect(0,0,64,64);
 
     if (expiredTasks > 0) {
+
+      // primaryStage.setTitle("KeepTask - " + expiredTasks + " todos due");
+
       gcIcon.setFill(Color.RED);
       gcIcon.fillOval(32, 32, 32, 32);
 

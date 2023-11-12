@@ -92,7 +92,7 @@ public class App extends Application {
       LOG.info("UI successfully initialised.");
     } catch (final Exception e) {
       LOG.error("There was an error while initialising the UI", e);
-      showExceptionAndExit(e);
+      showExceptionAndExit(e, primaryStage);
     }
   }
 
@@ -130,7 +130,7 @@ public class App extends Application {
     primaryStage.show();
   }
 
-  private static void showExceptionAndExit(Exception e) {
+  private static void showExceptionAndExit(Exception e, Stage primaryStage) {
     final Alert alert = new Alert(AlertType.ERROR);
     alert.setTitle("Error");
     alert.setHeaderText("Could not start application");
@@ -156,6 +156,7 @@ public class App extends Application {
 
     alert.getDialogPane().setExpandableContent(expContent);
 
+    alert.initOwner(primaryStage);
     alert.showAndWait();
     System.exit(1);
   }
