@@ -24,6 +24,7 @@ import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.common.Resources.RESOURCE;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
+import de.doubleslash.keeptask.view.IconController;
 import de.doubleslash.keeptask.view.MainWindowController;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -60,6 +61,7 @@ public class App extends Application {
   private Controller controller;
 
   private MainWindowController viewController;
+  private IconController iconController;
 
   @Override
   public void init() throws Exception {
@@ -90,7 +92,7 @@ public class App extends Application {
       LOG.info("UI successfully initialised.");
     } catch (final Exception e) {
       LOG.error("There was an error while initialising the UI", e);
-      showExceptionAndExit(e);
+      showExceptionAndExit(e, primaryStage);
     }
   }
 
@@ -101,13 +103,17 @@ public class App extends Application {
     controller.init();
 
     initialiseAndShowUI(primaryStage);
+    iconController = new IconController(model, controller, primaryStage);
+    iconController.initialize();
   }
 
   private void initialiseAndShowUI(final Stage primaryStage) throws IOException {
     LOG.debug("Initialising main UI.");
     primaryStage.setTitle("KeepTask");
     primaryStage.initStyle(StageStyle.TRANSPARENT);
-    primaryStage.getIcons().add(new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString()));
+    Image applicationIcon = new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString());
+    primaryStage.getIcons().setAll(applicationIcon);
+
     primaryStage.setAlwaysOnTop(true);
     primaryStage.setResizable(false);
     primaryStage.setOnCloseRequest(windowEvent -> LOG.info("On close request"));
@@ -124,7 +130,7 @@ public class App extends Application {
     primaryStage.show();
   }
 
-  private static void showExceptionAndExit(Exception e) {
+  private static void showExceptionAndExit(Exception e, Stage primaryStage) {
     final Alert alert = new Alert(AlertType.ERROR);
     alert.setTitle("Error");
     alert.setHeaderText("Could not start application");
@@ -150,6 +156,7 @@ public class App extends Application {
 
     alert.getDialogPane().setExpandableContent(expContent);
 
+    alert.initOwner(primaryStage);
     alert.showAndWait();
     System.exit(1);
   }
