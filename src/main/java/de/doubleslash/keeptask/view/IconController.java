@@ -38,9 +38,13 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class IconController {
+
   private final Model model;
   private final Controller controller;
   private final Stage primaryStage;
+
+  private final Image applicationIcon = new Image(
+      Resources.getResource(RESOURCE.ICON_MAIN).toString());
 
   private final Canvas taskbarCanvas = new Canvas(64, 64);
 
@@ -72,41 +76,40 @@ public class IconController {
 
   private void updateTaskbarIcon(int expiredTasks, Stage primaryStage) {
     final GraphicsContext gcIcon = taskbarCanvas.getGraphicsContext2D();
-    Image applicationIcon = new Image(Resources.getResource(RESOURCE.ICON_MAIN).toString());
 
     gcIcon.clearRect(0, 0, taskbarCanvas.getWidth(), taskbarCanvas.getHeight());
     gcIcon.drawImage(applicationIcon, 0, 0, 64, 64);
 
-    //gcIcon.setFill(Color.PINK);
-    //gcIcon.fillRect(0,0,64,64);
-
     if (expiredTasks > 0) {
-
-      // primaryStage.setTitle("KeepTask - " + expiredTasks + " todos due");
-
-      gcIcon.setFill(Color.RED);
-      gcIcon.fillOval(32, 32, 32, 32);
-
-      gcIcon.setStroke(Color.WHITE);
-      gcIcon.setTextAlign(TextAlignment.CENTER);
-      Font aDefault = Font.getDefault();
-      gcIcon.setFont(new Font(aDefault.getName(), 30));
-      gcIcon.setStroke(Color.WHITE);
-      gcIcon.setLineWidth(2);
-
-      gcIcon.strokeText(Integer.toString(expiredTasks), 47, 57);
+      drawExpiredTasksToGC(expiredTasks, gcIcon);
     }
 
+    final Image icon = canvasToImage();
+
+    primaryStage.getIcons().setAll(icon);
+  }
+
+  private static void drawExpiredTasksToGC(int expiredTasks, GraphicsContext gcIcon) {
+    gcIcon.setFill(Color.RED);
+    gcIcon.fillOval(32, 32, 32, 32);
+
+    gcIcon.setStroke(Color.WHITE);
+    gcIcon.setTextAlign(TextAlignment.CENTER);
+    Font aDefault = Font.getDefault();
+    gcIcon.setFont(new Font(aDefault.getName(), 30));
+    gcIcon.setStroke(Color.WHITE);
+    gcIcon.setLineWidth(2);
+
+    gcIcon.strokeText(Integer.toString(expiredTasks), 47, 57);
+  }
+
+  private Image canvasToImage() {
     final SnapshotParameters snapshotParameters = new SnapshotParameters();
     snapshotParameters.setFill(Color.TRANSPARENT);
     final WritableImage image = taskbarCanvas.snapshot(snapshotParameters, null);
 
     final BufferedImage bi = SwingFXUtils.fromFXImage(image, null);
     final Image icon = SwingFXUtils.toFXImage(bi, null);
-
-    //ImageView e = new ImageView(image);
-    //mainPane.getChildren().add(e);
-
-    primaryStage.getIcons().setAll(icon);
+    return icon;
   }
 }
