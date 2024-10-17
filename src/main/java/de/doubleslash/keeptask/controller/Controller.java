@@ -21,9 +21,11 @@ package de.doubleslash.keeptask.controller;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.model.WorkItem;
 import de.doubleslash.keeptask.model.repos.WorkItemRepository;
+import de.doubleslash.keeptask.view.MainWindowController;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +41,18 @@ public class Controller {
 
   private WorkItemRepository workItemRepository;
 
+  private MainWindowController mainWindowController;
+
   @Autowired
-  public Controller(final Model model, final WorkItemRepository workItemRepository) {
+  public Controller(final Model model, final WorkItemRepository workItemRepository, final MainWindowController mainWindowController) {
     this.model = model;
     this.workItemRepository = workItemRepository;
+    this.mainWindowController = mainWindowController;
   }
 
   public void init() {
     reloadWorkItemsFromRepo();
+    checkForExpiredTodos();
   }
 
   public void addWorkItem(WorkItem workItem) {
@@ -104,5 +110,23 @@ public class Controller {
 
   public void setLatestSelectedProject(String projectName) {
     model.setLatestSelectedProject(projectName);
+  }
+
+  public List<WorkItem> checkForExpiredTodos() {
+    LocalDateTime now = LocalDateTime.now();
+    List<WorkItem> expiredTodos = model.getWorkItems().stream()
+        .filter(item -> {
+          LocalDateTime dueDateTime = item.getDueDateTime();
+          if (dueDateTime == null) {
+            return false;
+          }
+          return !item.isFinished() && now.isAfter(dueDateTime);
+        })
+        .collect(Collectors.toList());
+
+    if (!expiredTodos.isEmpty()) {
+      mainWindowController.showNotificationPopup(expiredTodos);
+    }
+    return expiredTodos;
   }
 }

@@ -46,6 +46,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
@@ -375,4 +376,25 @@ public class MainWindowController {
     mainStage.sizeToScene();
   }
 
+  public void showNotificationPopup(List<WorkItem> expiredTodos) {
+    for (WorkItem todo : expiredTodos) {
+      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+      alert.setTitle("Expired Todo");
+      alert.setHeaderText("The following todo has expired:");
+      alert.setContentText(todo.getTodo());
+
+      ButtonType markAsDoneButton = new ButtonType("Mark as Done");
+      ButtonType changeDueDateButton = new ButtonType("Change Due Date");
+      alert.getButtonTypes().setAll(markAsDoneButton, changeDueDateButton, ButtonType.CLOSE);
+
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.isPresent()) {
+        if (result.get() == markAsDoneButton) {
+          controller.toggleWorkItemCompleted(todo);
+        } else if (result.get() == changeDueDateButton) {
+          editTodoClicked(todo);
+        }
+      }
+    }
+  }
 }

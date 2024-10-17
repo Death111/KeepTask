@@ -26,14 +26,17 @@ import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.view.IconController;
 import de.doubleslash.keeptask.view.MainWindowController;
+import de.doubleslash.keeptask.model.WorkItem;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -105,6 +108,7 @@ public class App extends Application {
     initialiseAndShowUI(primaryStage);
     iconController = new IconController(model, controller, primaryStage);
     iconController.initialize();
+    showNotificationPopup();
   }
 
   private void initialiseAndShowUI(final Stage primaryStage) throws IOException {
@@ -174,4 +178,18 @@ public class App extends Application {
     springContext.stop();
   }
 
+  private void showNotificationPopup() {
+    List<WorkItem> expiredTodos = controller.checkForExpiredTodos();
+    if (!expiredTodos.isEmpty()) {
+      Alert alert = new Alert(AlertType.INFORMATION);
+      alert.setTitle("Expired Todos");
+      alert.setHeaderText("The following todos have expired:");
+      StringBuilder content = new StringBuilder();
+      for (WorkItem todo : expiredTodos) {
+        content.append(todo.getTodo()).append("\n");
+      }
+      alert.setContentText(content.toString());
+      alert.showAndWait();
+    }
+  }
 }
