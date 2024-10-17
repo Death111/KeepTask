@@ -200,6 +200,8 @@ public class MainWindowController {
     if (mainStage != null) {
       mainStage.sizeToScene();
     }
+
+    checkForExpiredTodos();
   }
 
   private Node createTodoNode(WorkItem workItem) {
@@ -395,6 +397,23 @@ public class MainWindowController {
           editTodoClicked(todo);
         }
       }
+    }
+  }
+
+  public void checkForExpiredTodos() {
+    LocalDateTime now = LocalDateTime.now();
+    List<WorkItem> expiredTodos = model.getWorkItems().stream()
+        .filter(item -> {
+          LocalDateTime dueDateTime = item.getDueDateTime();
+          if (dueDateTime == null) {
+            return false;
+          }
+          return !item.isFinished() && now.isAfter(dueDateTime);
+        })
+        .collect(Collectors.toList());
+
+    if (!expiredTodos.isEmpty()) {
+      showNotificationPopup(expiredTodos);
     }
   }
 }
