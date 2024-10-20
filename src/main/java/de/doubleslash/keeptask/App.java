@@ -26,6 +26,7 @@ import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
 import de.doubleslash.keeptask.view.IconController;
 import de.doubleslash.keeptask.view.MainWindowController;
+import de.doubleslash.keeptask.view.NotificationController;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -62,6 +63,7 @@ public class App extends Application {
 
   private MainWindowController viewController;
   private IconController iconController;
+  private NotificationController notificationController;
 
   @Override
   public void init() throws Exception {
@@ -82,6 +84,7 @@ public class App extends Application {
 
     model = springContext.getBean(Model.class);
     controller = springContext.getBean(Controller.class);
+    notificationController = springContext.getBean(NotificationController.class);
   }
 
   @Override
@@ -94,6 +97,7 @@ public class App extends Application {
       LOG.error("There was an error while initialising the UI", e);
       showExceptionAndExit(e, primaryStage);
     }
+    notificationController.showExpiredTodos(primaryStage);
   }
 
 
