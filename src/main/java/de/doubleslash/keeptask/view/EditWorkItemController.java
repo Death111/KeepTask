@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class EditWorkItemController {
   private DatePicker completedDateDatePicker;
 
   @FXML
-  private TextField noteTextInput;
+  private TextArea noteTextArea;
 
   @FXML
   private Label dueDateStatusLabel;
@@ -88,7 +89,7 @@ public class EditWorkItemController {
     if (workItem.getCompletedDateTime() != null) {
       completedDateDatePicker.setValue(workItem.getCompletedDateTime().toLocalDate());
     }
-    noteTextInput.setText(workItem.getNote());
+    noteTextArea.setText(workItem.getNote());
   }
 
   public WorkItem getWorkItemFromUserInput() {
@@ -106,7 +107,7 @@ public class EditWorkItemController {
     if (completedDateDatePicker.getValue() != null) {
       workItem.setCompletedDateTime(completedDateDatePicker.getValue().atStartOfDay());
     }
-    workItem.setNote(noteTextInput.getText());
+    workItem.setNote(noteTextArea.getText());
     return workItem;
   }
 
