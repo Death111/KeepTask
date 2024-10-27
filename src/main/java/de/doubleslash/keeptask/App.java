@@ -31,7 +31,6 @@ import de.doubleslash.keeptask.view.MainWindowController;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import javafx.application.Application;
@@ -97,6 +96,7 @@ public class App extends Application {
     try {
       initialiseApplication(primaryStage);
       LOG.info("UI successfully initialised.");
+      showExpiredTodosDialog(primaryStage);
     } catch (final Exception e) {
       LOG.error("There was an error while initialising the UI", e);
       showExceptionAndExit(e, primaryStage);
@@ -112,8 +112,6 @@ public class App extends Application {
     initialiseAndShowUI(primaryStage);
     iconController = new IconController(model, controller, primaryStage);
     iconController.initialize();
-
-    showExpiredTodosDialog();
   }
 
   private void initialiseAndShowUI(final Stage primaryStage) throws IOException {
@@ -139,11 +137,13 @@ public class App extends Application {
     primaryStage.show();
   }
 
-  private void showExpiredTodosDialog() {
-    List<WorkItem> expiredWorkItems = model.getExpiredWorkItems();
-    for (WorkItem workItem : expiredWorkItems) {
+  private void showExpiredTodosDialog(Stage primaryStage) {
+    List<WorkItem> expiredWorkItems = controller.getExpiredWorkItems();
+    for (int i = 0; i < expiredWorkItems.size(); i++) {
+      WorkItem workItem = expiredWorkItems.get(i);
       final Dialog<WorkItem> dialog = new Dialog<>();
-      dialog.setTitle("Expired Todo");
+      dialog.setTitle("Expired Todo (" + (i + 1) + "/" + expiredWorkItems.size() + ") - "
+          + workItem.getProject() + " - " + workItem.getTodo());
       dialog.setHeaderText("This todo has expired. Please take action.");
       dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -158,7 +158,7 @@ public class App extends Application {
       EditWorkItemController editWorkItemController = loader.getController();
       editWorkItemController.initializeWith(workItem);
       dialog.getDialogPane().setContent(grid);
-      dialog.initOwner(null);
+      dialog.initOwner(primaryStage);
       dialog.setResultConverter((dialogButton) -> {
         if (dialogButton == ButtonType.OK) {
           return editWorkItemController.getWorkItemFromUserInput();

@@ -19,6 +19,9 @@
 package de.doubleslash.keeptask.view;
 
 import de.doubleslash.keeptask.model.WorkItem;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
@@ -28,10 +31,6 @@ import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Component
 public class EditWorkItemController {
@@ -76,6 +75,9 @@ public class EditWorkItemController {
     todoTextInput.setText(workItem.getTodo());
     if (workItem.getDueDateTime() != null) {
       dueDateDatePicker.setValue(workItem.getDueDateTime().toLocalDate());
+      dueDateDatePicker.valueProperty().addListener((dp, oldValue, newValue) -> {
+        updateDueDateStatus(newValue.atStartOfDay());
+      });
       updateDueDateStatus(workItem.getDueDateTime());
     }
     priorityTextInput.setText(workItem.getPriority());
@@ -102,7 +104,7 @@ public class EditWorkItemController {
       workItem.setCreatedDateTime(createdDateDatePicker.getValue().atStartOfDay());
     }
     if (completedDateDatePicker.getValue() != null) {
-      workItem.setCompletedDateDatePicker.getValue().atStartOfDay());
+      workItem.setCompletedDateTime(completedDateDatePicker.getValue().atStartOfDay());
     }
     workItem.setNote(noteTextInput.getText());
     return workItem;
@@ -114,7 +116,7 @@ public class EditWorkItemController {
     long daysBetween = ChronoUnit.DAYS.between(now, dueDate);
 
     if (daysBetween < 0) {
-      dueDateStatusLabel.setText(Math.abs(daysBetween) + " days expired");
+      dueDateStatusLabel.setText(Math.abs(daysBetween) + " days expired!");
       dueDateStatusLabel.setTextFill(Color.DARKRED);
     } else if (daysBetween > 0) {
       dueDateStatusLabel.setText(daysBetween + " days remaining");
