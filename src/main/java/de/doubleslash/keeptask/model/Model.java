@@ -1,7 +1,6 @@
 package de.doubleslash.keeptask.model;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -56,11 +55,5 @@ public class Model {
 
   public void setLatestSelectedProject(String latestSelectedProject) {
     this.latestSelectedProject.set(latestSelectedProject);
-  }
-
-  public List<WorkItem> getExpiredWorkItems() {
-    return workItems.stream()
-        .filter(workItem -> workItem.getDueDateTime() != null && workItem.getDueDateTime().isBefore(LocalDateTime.now()))
-        .collect(Collectors.toList());
   }
 }

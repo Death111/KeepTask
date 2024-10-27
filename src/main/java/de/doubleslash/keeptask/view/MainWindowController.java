@@ -343,7 +343,6 @@ public class MainWindowController {
 
     result.ifPresent(project -> {
       controller.editWorkItem(workItem, result.get());
-      refreshTodos();
     });
   }
 
