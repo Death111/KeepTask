@@ -24,16 +24,22 @@ import de.doubleslash.keeptask.common.Resources;
 import de.doubleslash.keeptask.common.Resources.RESOURCE;
 import de.doubleslash.keeptask.controller.Controller;
 import de.doubleslash.keeptask.model.Model;
+import de.doubleslash.keeptask.model.WorkItem;
+import de.doubleslash.keeptask.view.EditWorkItemController;
 import de.doubleslash.keeptask.view.IconController;
 import de.doubleslash.keeptask.view.MainWindowController;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -90,6 +96,7 @@ public class App extends Application {
     try {
       initialiseApplication(primaryStage);
       LOG.info("UI successfully initialised.");
+      showExpiredTodosDialog(primaryStage);
     } catch (final Exception e) {
       LOG.error("There was an error while initialising the UI", e);
       showExceptionAndExit(e, primaryStage);
@@ -128,6 +135,43 @@ public class App extends Application {
     primaryStage.setScene(mainScene);
 
     primaryStage.show();
+  }
+
+  private void showExpiredTodosDialog(Stage primaryStage) {
+    List<WorkItem> expiredWorkItems = controller.getExpiredWorkItems();
+    for (int i = 0; i < expiredWorkItems.size(); i++) {
+      WorkItem workItem = expiredWorkItems.get(i);
+      final Dialog<WorkItem> dialog = new Dialog<>();
+      dialog.setTitle("Expired Todo (" + (i + 1) + "/" + expiredWorkItems.size() + ") - "
+          + workItem.getProject() + " - " + workItem.getTodo());
+      dialog.setHeaderText("This todo has expired. Please take action.");
+      dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+      GridPane grid;
+      final FXMLLoader loader = FxmlLayout.createLoaderFor(
+          Resources.RESOURCE.FXML_EDIT_WORKITEM_LAYOUT);
+      try {
+        grid = loader.load();
+      } catch (final IOException e) {
+        throw new RuntimeException("Error while loading expired todo dialog layout", e);
+      }
+      EditWorkItemController editWorkItemController = loader.getController();
+      editWorkItemController.initializeWith(workItem);
+      dialog.getDialogPane().setContent(grid);
+      dialog.initOwner(primaryStage);
+      dialog.setResultConverter((dialogButton) -> {
+        if (dialogButton == ButtonType.OK) {
+          return editWorkItemController.getWorkItemFromUserInput();
+        }
+        return null;
+      });
+
+      final Optional<WorkItem> result = dialog.showAndWait();
+
+      result.ifPresent(updatedWorkItem -> {
+        controller.editWorkItem(workItem, updatedWorkItem);
+      });
+    }
   }
 
   private static void showExceptionAndExit(Exception e, Stage primaryStage) {

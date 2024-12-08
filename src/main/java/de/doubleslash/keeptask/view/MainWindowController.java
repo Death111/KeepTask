@@ -252,7 +252,8 @@ public class MainWindowController {
       children1.add(createDueDateTimeLabel(dueDateTime));
     }
 
-    Label noteLabel = new Label("Note: " + workItem.getNote());
+    Label noteLabel = new Label("Note: " + workItem.getNote().replaceAll("\r?\n", " "));
+    noteLabel.setMaxWidth(400);
     if (!workItem.getNote().isEmpty()) {
       children1.add(noteLabel);
     }
@@ -343,7 +344,6 @@ public class MainWindowController {
 
     result.ifPresent(project -> {
       controller.editWorkItem(workItem, result.get());
-      refreshTodos();
     });
   }
 

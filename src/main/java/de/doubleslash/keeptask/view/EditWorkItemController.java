@@ -19,10 +19,16 @@
 package de.doubleslash.keeptask.view;
 
 import de.doubleslash.keeptask.model.WorkItem;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,7 +60,10 @@ public class EditWorkItemController {
   private DatePicker completedDateDatePicker;
 
   @FXML
-  private TextField noteTextInput;
+  private TextArea noteTextArea;
+
+  @FXML
+  private Label dueDateStatusLabel;
 
   @FXML
   private void initialize() {
@@ -67,6 +76,10 @@ public class EditWorkItemController {
     todoTextInput.setText(workItem.getTodo());
     if (workItem.getDueDateTime() != null) {
       dueDateDatePicker.setValue(workItem.getDueDateTime().toLocalDate());
+      dueDateDatePicker.valueProperty().addListener((dp, oldValue, newValue) -> {
+        updateDueDateStatus(newValue.atStartOfDay());
+      });
+      updateDueDateStatus(workItem.getDueDateTime());
     }
     priorityTextInput.setText(workItem.getPriority());
     projectTextInput.setText(workItem.getProject());
@@ -76,7 +89,7 @@ public class EditWorkItemController {
     if (workItem.getCompletedDateTime() != null) {
       completedDateDatePicker.setValue(workItem.getCompletedDateTime().toLocalDate());
     }
-    noteTextInput.setText(workItem.getNote());
+    noteTextArea.setText(workItem.getNote());
   }
 
   public WorkItem getWorkItemFromUserInput() {
@@ -94,7 +107,24 @@ public class EditWorkItemController {
     if (completedDateDatePicker.getValue() != null) {
       workItem.setCompletedDateTime(completedDateDatePicker.getValue().atStartOfDay());
     }
-    workItem.setNote(noteTextInput.getText());
+    workItem.setNote(noteTextArea.getText());
     return workItem;
+  }
+
+  private void updateDueDateStatus(LocalDateTime dueDateTime) {
+    LocalDate now = LocalDate.now();
+    LocalDate dueDate = dueDateTime.toLocalDate();
+    long daysBetween = ChronoUnit.DAYS.between(now, dueDate);
+
+    if (daysBetween < 0) {
+      dueDateStatusLabel.setText(Math.abs(daysBetween) + " days expired!");
+      dueDateStatusLabel.setTextFill(Color.DARKRED);
+    } else if (daysBetween > 0) {
+      dueDateStatusLabel.setText(daysBetween + " days remaining");
+      dueDateStatusLabel.setTextFill(Color.BLACK);
+    } else {
+      dueDateStatusLabel.setText("Due today");
+      dueDateStatusLabel.setTextFill(Color.ORANGE);
+    }
   }
 }

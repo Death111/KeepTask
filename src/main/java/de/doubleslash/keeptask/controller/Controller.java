@@ -24,6 +24,7 @@ import de.doubleslash.keeptask.model.repos.WorkItemRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,5 +105,13 @@ public class Controller {
 
   public void setLatestSelectedProject(String projectName) {
     model.setLatestSelectedProject(projectName);
+  }
+
+  public List<WorkItem> getExpiredWorkItems() {
+    return model.getWorkItems().stream()
+        .filter(workItem -> !workItem.isFinished() && workItem.getDueDateTime() != null
+            && workItem.getDueDateTime().isBefore(
+            LocalDateTime.now()))
+        .collect(Collectors.toList());
   }
 }
